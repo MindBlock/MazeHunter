@@ -1,5 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_rl_layout"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     tools:context="com.mindblock.mazehunter.MainActivity" >
