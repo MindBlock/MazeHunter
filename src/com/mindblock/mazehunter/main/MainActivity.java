@@ -2,6 +2,8 @@ package com.mindblock.mazehunter.main;
 
 import com.mindblock.mazehunter.R;
 import com.mindblock.mazehunter.maze.TheMazeLayout;
+import com.mindblock.mazehunter.shop.ShopLayout;
+import com.mindblock.mazehunter.skills.SkillsLayout;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -88,7 +90,7 @@ public class MainActivity extends Activity {
 
 	private void setButtonListenerMaze(ImageButton ib){
 		ib.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(MainActivity.this, TheMazeLayout.class);
@@ -99,11 +101,27 @@ public class MainActivity extends Activity {
 	}
 
 	private void setButtonListenerSkills(ImageButton ib){
+		ib.setOnClickListener(new OnClickListener() {
 
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(MainActivity.this, SkillsLayout.class);
+				//Add extras?
+				MainActivity.this.startActivity(intent);
+			}
+		});
 	}
 
 	private void setButtonListenerShop(ImageButton ib){
+		ib.setOnClickListener(new OnClickListener() {
 
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(MainActivity.this, ShopLayout.class);
+				//Add extras?
+				MainActivity.this.startActivity(intent);
+			}
+		});
 	}
 
 
