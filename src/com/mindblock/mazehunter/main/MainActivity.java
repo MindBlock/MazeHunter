@@ -46,7 +46,7 @@ public class MainActivity extends Activity {
 		LinearLayout linearLayout = new LinearLayout(this);
 		linearLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		linearLayout.setOrientation(LinearLayout.VERTICAL);
-		linearLayout.setGravity(Gravity.CENTER_VERTICAL);
+		linearLayout.setGravity(Gravity.CENTER);
 
 		//Add image buttons
 		linearLayout.addView(this.getImageButton(SpecificButton.MAZE));
@@ -58,8 +58,12 @@ public class MainActivity extends Activity {
 	}
 
 
-	private ImageButton getImageButton(SpecificButton sb){
+	private LinearLayout getImageButton(SpecificButton sb){
 		ImageButton ib = new ImageButton(this);
+		
+		LinearLayout iButtonLayout = new LinearLayout(this);
+		iButtonLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+		iButtonLayout.setOrientation(LinearLayout.HORIZONTAL);
 
 		ib.setImageResource(sb.ID);
 		ib.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
@@ -69,6 +73,7 @@ public class MainActivity extends Activity {
 		ib.setAdjustViewBounds(true);
 		int maxHeight = (int) ((2*this.getDeviceHeight()/3)/NUMBER_OF_BUTTONS);
 		ib.setMaxHeight(maxHeight);
+		ib.setMaxWidth((int) (0.65*this.getDeviceWidth()));
 
 		//Check which button we need to add functionality for
 		switch (sb) {
@@ -84,7 +89,9 @@ public class MainActivity extends Activity {
 			break;
 		}
 
-		return ib;
+		iButtonLayout.addView(ib);
+		
+		return iButtonLayout;
 	}
 
 
@@ -127,6 +134,10 @@ public class MainActivity extends Activity {
 
 	private double getDeviceHeight(){
 		return this.getResources().getDisplayMetrics().heightPixels;
+	}
+	
+	private double getDeviceWidth(){
+		return this.getResources().getDisplayMetrics().widthPixels;
 	}
 
 
