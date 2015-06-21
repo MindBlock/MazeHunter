@@ -3,6 +3,7 @@ package com.mindblock.mazehunter.maze;
 import com.mindblock.mazehunter.R;
 
 import android.app.Activity;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.Window;
@@ -16,7 +17,8 @@ import android.widget.ScrollView;
 public class TheMazeLayout extends Activity{
 	
 	private static final int NUMBER_OF_LEVELS = 50;
-	private static final int LEVELS_UNLOCKED = 12;
+	private static final int LEVELS_UNLOCKED = 22;
+	private Typeface typeFace;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +27,7 @@ public class TheMazeLayout extends Activity{
 		//Remove title bar
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.the_maze_layout);
+		this.typeFace = Typeface.createFromAsset(getAssets(),"fonts/bitwise.ttf");
 
 		this.addListOfLevels();
 	}
@@ -70,13 +73,14 @@ public class TheMazeLayout extends Activity{
 			//Check the completion level
 			
 			
-//			levelButton.setScaleType(Button.ScaleType.CENTER_INSIDE);
-			levelButton.setBackgroundResource(R.drawable.button_the_maze);
+			levelButton.setBackgroundResource(R.drawable.border_default_completion);
+			levelButton.setTypeface(this.typeFace);
 			levelButton.setText("Maze " + level);
 			
 			//Set margin:
-			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-			params.setMargins(0, 0, 0, 20);
+			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+			int horizontalOffset = (int) this.getDeviceWidth()/10;
+			params.setMargins(horizontalOffset, 5, horizontalOffset, 5);
 			levelButton.setLayoutParams(params);
 			
 			scrollLayout.addView(levelButton);
@@ -85,8 +89,8 @@ public class TheMazeLayout extends Activity{
 	
 	private ImageView getLevelImage(){
 		ImageView levelImage = new ImageView(this);
-		
-		levelImage.setImageResource(R.drawable.button_shop);
+		levelImage.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		levelImage.setImageResource(R.drawable.image_the_maze_blank);
 		
 		levelImage.setAdjustViewBounds(true);
 		int maxHeight = (int) (0.15*this.getDeviceHeight());
@@ -97,5 +101,9 @@ public class TheMazeLayout extends Activity{
 	
 	private double getDeviceHeight(){
 		return this.getResources().getDisplayMetrics().heightPixels;
+	}
+	
+	private double getDeviceWidth(){
+		return this.getResources().getDisplayMetrics().widthPixels;
 	}
 }
