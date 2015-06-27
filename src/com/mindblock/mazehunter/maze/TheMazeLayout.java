@@ -72,8 +72,15 @@ public class TheMazeLayout extends Activity{
 			
 			//Check the completion level
 			
+			if (level%4 == 1)
+				levelButton.setBackgroundResource(R.drawable.border_default_completion);
+			else if (level%4 == 2)
+				levelButton.setBackgroundResource(R.drawable.border_bronze_completion);
+			else if (level%4 == 3)
+				levelButton.setBackgroundResource(R.drawable.border_silver_completion);
+			else
+				levelButton.setBackgroundResource(R.drawable.border_gold_completion);
 			
-			levelButton.setBackgroundResource(R.drawable.border_default_completion);
 			levelButton.setTypeface(this.typeFace);
 			levelButton.setText("Maze " + level);
 			
