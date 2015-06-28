@@ -153,4 +153,10 @@ public class TheMaze extends Activity{
 
 		return mazeInfo;
 	}
+	
+	
+	private void addDoorLeft(){
+		
+		
+	}
 }
