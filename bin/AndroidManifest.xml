@@ -35,6 +35,10 @@
             android:name="com.mindblock.mazehunter.shop.ShopLayout"
             android:screenOrientation="portrait" >
         </activity>
+        <activity
+            android:name="com.mindblock.mazehunter.maze.TheMaze"
+            android:screenOrientation="portrait" >
+        </activity>
     </application>
 
 </manifest>

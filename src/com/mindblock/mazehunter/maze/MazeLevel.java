@@ -3,22 +3,22 @@ package com.mindblock.mazehunter.maze;
 public class MazeLevel {
 
 	private int index;
-	private Completion c;
+	private String completion;
 	
-	public MazeLevel(int index, Completion c){
+	public MazeLevel(int index, String completion){
 		this.index = index;
-		this.c = c;
+		this.completion = completion;
 	}
 	
 	public int getIndex(){
 		return this.index;
 	}
 	
-	public Completion getCompletion(){
-		return this.c;
+	public String getCompletion(){
+		return this.completion;
 	}
 	
-	public void setCompletion(Completion c){
-		this.c = c;
+	public void setCompletion(String completion){
+		this.completion = completion;
 	}
 }

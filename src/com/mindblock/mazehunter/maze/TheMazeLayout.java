@@ -1,12 +1,17 @@
 package com.mindblock.mazehunter.maze;
 
 import com.mindblock.mazehunter.R;
+import com.mindblock.mazehunter.main.MainActivity;
+import com.mindblock.mazehunter.shop.ShopLayout;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.View;
 import android.view.Window;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -17,7 +22,12 @@ import android.widget.ScrollView;
 public class TheMazeLayout extends Activity{
 	
 	private static final int NUMBER_OF_LEVELS = 50;
-	private static final int LEVELS_UNLOCKED = 22;
+	private static final int LEVELS_UNLOCKED = 1;
+	
+	private static final String COMPLETION_NONE = "NONE";
+	private static final String COMPLETION_BRONZE = "BRONZE";
+	private static final String COMPLETION_SILVER = "SILVER";
+	private static final String COMPLETION_GOLD = "GOLD";
 	private Typeface typeFace;
 	
 	@Override
@@ -72,17 +82,12 @@ public class TheMazeLayout extends Activity{
 			
 			//Check the completion level
 			
-			if (level%4 == 1)
-				levelButton.setBackgroundResource(R.drawable.border_default_completion);
-			else if (level%4 == 2)
-				levelButton.setBackgroundResource(R.drawable.border_bronze_completion);
-			else if (level%4 == 3)
-				levelButton.setBackgroundResource(R.drawable.border_silver_completion);
-			else
-				levelButton.setBackgroundResource(R.drawable.border_gold_completion);
+			levelButton.setBackgroundResource(R.drawable.border_default_completion);
 			
 			levelButton.setTypeface(this.typeFace);
 			levelButton.setText("Maze " + level);
+			
+			levelButton.setOnClickListener(new LevelListener(level, COMPLETION_NONE));
 			
 			//Set margin:
 			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
@@ -104,6 +109,27 @@ public class TheMazeLayout extends Activity{
 		levelImage.setMaxHeight(maxHeight);
 		
 		return levelImage;
+	}
+	
+	public class LevelListener implements OnClickListener{
+
+		private int level;
+		private String completion;
+		
+		public LevelListener(int level, String completion){
+			this.level = level;
+			this.completion = completion;
+		}
+		
+		@Override
+		public void onClick(View v) {
+			Intent intent = new Intent(TheMazeLayout.this, TheMaze.class);
+			//Add extras?
+			intent.putExtra("COMPLETION", this.completion);
+			intent.putExtra("LEVEL", this.level);
+			TheMazeLayout.this.startActivity(intent);
+		}
+		
 	}
 	
 	private double getDeviceHeight(){
