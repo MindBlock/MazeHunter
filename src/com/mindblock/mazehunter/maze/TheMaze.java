@@ -27,6 +27,9 @@ public class TheMaze extends Activity{
 	private String completion;
 	private static final int NUMBER_OF_USEABLE_ITEMS = 6;
 	private MazeInfo mazeInfo;
+	private List<Coordinate> allTreasureList;
+	private List<Coordinate> obtainedTreasureList;
+	private List<Coordinate> roomsVisited;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +48,9 @@ public class TheMaze extends Activity{
 		//get and set all info regarding this maze
 		List<String[]> info = this.getMazeInfo();
 		this.mazeInfo = new MazeInfo(this.getMazeInfo());
+		this.allTreasureList = this.mazeInfo.getTreasureList();
+		this.obtainedTreasureList = new ArrayList<Coordinate>(this.allTreasureList.size());
+		this.roomsVisited = new ArrayList<Coordinate>();
 
 		this.addMazeLayout();
 	}
@@ -115,7 +121,7 @@ public class TheMaze extends Activity{
 		params.height = (int) this.getDeviceWidth();
 		roomLayout.setLayoutParams(params);
 		roomLayout.setBackgroundResource(R.drawable.maze_room_start);
-
+//		roomLayout.setOnTouchListener(l);
 
 		//TODO:Check what kind of room and set doors etc
 		//		room.setImageResource(R.drawable.maze_room_start);
@@ -123,6 +129,10 @@ public class TheMaze extends Activity{
 		//		roomLayout.addView(room);
 
 		return roomLayout;
+	}
+	
+	private void updateRoomLayout(Room room){
+		
 	}
 	
 	
@@ -152,11 +162,5 @@ public class TheMaze extends Activity{
 		}
 
 		return mazeInfo;
-	}
-	
-	
-	private void addDoorLeft(){
-		
-		
 	}
 }
