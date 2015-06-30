@@ -48,5 +48,7 @@ public class Room {
 		return enemy;
 	}
 	
-	
+	public String getBitRoom(){
+		return this.bitRoom;
+	}
 }

@@ -12,6 +12,7 @@ public class MazeInfo {
 	
 	public MazeInfo(List<String[]> mazeList){
 		
+		this.maze = new Room[mazeList.size()][mazeList.get(0).length];
 		this.treasureList = new ArrayList<Coordinate>(3);
 		
 		for (int row = 0; row < mazeList.size(); row++){
