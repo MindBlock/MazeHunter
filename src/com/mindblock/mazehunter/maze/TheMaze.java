@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnTouchListener;
@@ -34,6 +35,17 @@ public class TheMaze extends Activity{
 	private List<Coordinate> obtainedTreasureList;
 	private List<Coordinate> roomsVisited;
 	protected LinearLayout roomLayout;
+	public static final int LEFT_DIRECTION = 0;
+	public static final int RIGHT_DIRECTION = 1;
+	public static final int UP_DIRECTION = 2;
+	public static final int DOWN_DIRECTION = 3;
+	public static final int NO_DIRECTION = -1;
+	public static final int DELAY = 3000;//3s
+	public static final int START_ROOM = R.drawable.maze_room_start;
+	//TODO: change to treasure room
+	public static final int TREASURE_ROOM = R.drawable.maze_room_start;
+	public static final int OTHER_ROOM = R.drawable.maze_room;
+	protected MovementDrawer md;
 
 
 	@Override
@@ -125,41 +137,36 @@ public class TheMaze extends Activity{
 		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		params.height = (int) this.getDeviceWidth();
 		roomLayout.setLayoutParams(params);
-		roomLayout.setBackgroundResource(R.drawable.maze_room_start);
 		roomLayout.setOnTouchListener(new DirectionListener());
 
 		//set doors
-		ImageView overlay = new ImageView(this);
 		Room[][] maze = mazeInfo.getMaze();
 		Coordinate player = this.mazeInfo.getPlayerCoordinate();
-		overlay.setImageResource(DoorOverlay.getDoorOverlayDrawable(
-				maze[player.getX()][player.getY()].getBitRoom()));
-		this.roomLayout.addView(overlay);
+		this.md = new MovementDrawer(this, DoorOverlay.getDoorOverlayDrawable(
+				maze[player.getX()][player.getY()].getBitRoom()), NO_DIRECTION, START_ROOM);
+		this.roomLayout.addView(this.md);
 
 	}
 
-	protected void updateRoomLayout(Room newRoom){
+	protected void updateRoomLayout(Room newRoom, int direction){
 
+		int roomSort = 0;
 		//Check what kind of room it is:
 		if (newRoom.isStart()){
-			this.roomLayout.setBackgroundResource(R.drawable.maze_room_start);
+			roomSort = START_ROOM;
 		}
 		else if(newRoom.isTreasure()){
-			//TODO: change to treasure room
-			this.roomLayout.setBackgroundResource(R.drawable.maze_room);
+			roomSort = TREASURE_ROOM;
 		}
 		else {
-			this.roomLayout.setBackgroundResource(R.drawable.maze_room);
+			roomSort = OTHER_ROOM;
 		}
 
-		//Next: update the doors overlay:
-		this.roomLayout.removeAllViews();
-		ImageView overlay = new ImageView(this);
+		//Next: update the doors overlay and movement:
 		Room[][] maze = mazeInfo.getMaze();
 		Coordinate player = this.mazeInfo.getPlayerCoordinate();
-		overlay.setImageResource(DoorOverlay.getDoorOverlayDrawable(
-				maze[player.getX()][player.getY()].getBitRoom()));
-		this.roomLayout.addView(overlay);
+		this.md.updateRoom(roomSort, direction, 
+				DoorOverlay.getDoorOverlayDrawable(maze[player.getX()][player.getY()].getBitRoom()));
 	}
 
 
@@ -170,7 +177,7 @@ public class TheMaze extends Activity{
 	protected double getDeviceWidth(){
 		return this.getResources().getDisplayMetrics().widthPixels;
 	}
-
+	
 
 
 	/**
@@ -202,29 +209,20 @@ public class TheMaze extends Activity{
 	public class DirectionListener implements OnTouchListener{
 
 
-		private boolean moving;
-		private long lastTouched;
-		private int delay = 1000; //3seconds to next touch
 		private double sizeImageOver2; 
 
 		public DirectionListener() {
 
 			this.sizeImageOver2 = getDeviceWidth()/2;
-			this.moving = false;
-			this.lastTouched = System.currentTimeMillis();
 		}
 
 
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
 
-			if (moving){
-				if (System.currentTimeMillis() - this.lastTouched > this.delay){
-					moving = false;
-				}
-				else {
-					return false;
-				}
+			//Do nothing if still drawing
+			if (md.isDrawing()){
+				return false;
 			}
 
 			float x = event.getX(); //the most recent x coordinate of the touch
@@ -239,29 +237,21 @@ public class TheMaze extends Activity{
 			//Down
 			if (direction > Math.PI/4 && direction < 3*Math.PI/4 && thisRoom.isDown()){
 				this.goDown(player, maze, thisRoom);
-				this.lastTouched = System.currentTimeMillis();
-				this.moving = true;
 				Log.e("MOVED", "____DOWN____");
 			}
 			//Right
 			else if (direction > 3*Math.PI/4 && direction <= 5*Math.PI/4 && thisRoom.isRight()){
 				this.goRight(player, maze, thisRoom);
-				this.lastTouched = System.currentTimeMillis();
-				this.moving = true;
 				Log.e("MOVED", "____RIGHT____");
 			}
 			//Up
 			else if (direction > 5*Math.PI/4 && direction <= 7*Math.PI/4 && thisRoom.isUp()){
 				this.goUp(player, maze, thisRoom);
-				this.lastTouched = System.currentTimeMillis();
-				this.moving = true;
 				Log.e("MOVED", "____UP____");
 			}
 			//Left
 			else if ((direction > 7*Math.PI/4 || direction <= Math.PI/4) && thisRoom.isLeft()){
 				this.goLeft(player, maze, thisRoom);
-				this.lastTouched = System.currentTimeMillis();
-				this.moving = true;
 				Log.e("MOVED", "____LEFT____");
 			}
 
@@ -275,7 +265,7 @@ public class TheMaze extends Activity{
 			//TODO: move enemy
 			//TODO: animate player movement
 
-			updateRoomLayout(maze[player.getX()][player.getY()]);
+			updateRoomLayout(maze[player.getX()][player.getY()], RIGHT_DIRECTION);
 		}
 
 		private void goUp(Coordinate player, Room[][] maze, Room room){
@@ -284,7 +274,7 @@ public class TheMaze extends Activity{
 			//TODO: move enemy
 			//TODO: animate player movement
 
-			updateRoomLayout(maze[player.getX()][player.getY()]);
+			updateRoomLayout(maze[player.getX()][player.getY()], UP_DIRECTION);
 		}
 
 		private void goLeft(Coordinate player, Room[][] maze, Room room){
@@ -293,7 +283,7 @@ public class TheMaze extends Activity{
 			//TODO: move enemy
 			//TODO: animate player movement
 
-			updateRoomLayout(maze[player.getX()][player.getY()]);
+			updateRoomLayout(maze[player.getX()][player.getY()], LEFT_DIRECTION);
 		}
 
 		private void goDown(Coordinate player, Room[][] maze, Room room){
@@ -302,7 +292,7 @@ public class TheMaze extends Activity{
 			//TODO: move enemy
 			//TODO: animate player movement
 
-			updateRoomLayout(maze[player.getX()][player.getY()]);
+			updateRoomLayout(maze[player.getX()][player.getY()], DOWN_DIRECTION);
 		}
 
 	}
