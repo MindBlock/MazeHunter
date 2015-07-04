@@ -16,12 +16,16 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 	public static Bitmap doorImageRoom1, doorImageRoom2, roomBackground1, roomBackground2, minimapEnter, minimapExit;
 	private Paint p;
 	public static int direction;
-	private float xPlayer, yPlayer;
+	private float xPlayer, yPlayer, wIntroMessage, hIntroMessage;
 	private MainThread thread;
 	public static boolean running = true;
 	public static boolean moveingOutOfRoom = true;
 	public static boolean minimapClicked = false;
 	private boolean initiation = true;
+	private boolean drawingIntroMessage = true;
+	private final int INTRO_MESSAGE_DURATION = 150; //ticks
+	private int currentIntroMessageTicks = 0;
+	private boolean startIntroMessageTicking = false;
 
 	private final int MOVE_OUT = 0;
 	private final int MOVE_IN = 1;
@@ -47,6 +51,8 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 
 		this.xPlayer = width/2;
 		this.yPlayer = width/2;
+		this.wIntroMessage = 20f;
+		this.hIntroMessage = 0.125f*20f;
 
 		setZOrderOnTop(true);
 		// Tell the SurfaceHolder ( -> getHolder() ) to receive SurfaceHolder
@@ -64,12 +70,13 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 		if (MovementDrawer.running && canvas != null) {
 
 			//First check if this is the start phase
-			if (this.initiation){
-
-				this.initiation = false;
-				this.drawFirstRoom(canvas);
-				this.drawMinimapSmall(canvas);
-				MovementDrawer.running = false;
+			if (this.drawingIntroMessage){
+				if (this.initiation){
+					this.initiation = false;
+					this.drawFirstRoom(canvas);
+					this.drawMinimapSmall(canvas);
+				}
+				this.drawIntroMessage(canvas);
 			}
 			else {
 
@@ -92,6 +99,43 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 
 	}
 
+
+	public void drawIntroMessage(Canvas canvas){
+		float size = this.getDeviceWidth();
+		double finalWidth = 0.8*size;
+
+		if (!this.startIntroMessageTicking){
+			double increment = this.SPEED;
+			this.wIntroMessage += increment;
+			this.hIntroMessage += 0.125*increment;
+		}
+		else {
+			this.currentIntroMessageTicks += 1;
+		}
+		
+		this.drawFirstRoom(canvas);
+		Bitmap introMessage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(
+				getResources(), R.drawable.intro_message_maze), 
+				(int) (this.wIntroMessage), 
+				(int) (this.hIntroMessage), false);
+
+		canvas.drawBitmap(introMessage, (size - this.wIntroMessage)/2,  size/3 - hIntroMessage/2, this.p);
+
+		if (!this.startIntroMessageTicking && this.wIntroMessage >= finalWidth){
+			this.startIntroMessageTicking = true;
+		}
+		
+		if (this.currentIntroMessageTicks >= this.INTRO_MESSAGE_DURATION){
+
+			this.drawFirstRoom(canvas);
+			this.drawMinimapSmall(canvas);
+
+			this.currentIntroMessageTicks = 0;
+			this.startIntroMessageTicking = false;
+			this.drawingIntroMessage = false;
+			MovementDrawer.running = false;
+		}
+	}
 
 	public void drawFirstRoom(Canvas canvas){
 

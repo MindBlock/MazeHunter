@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,10 +33,10 @@ public class TheMaze extends Activity{
 	private String completion;
 	private static final int NUMBER_OF_USEABLE_ITEMS = 6;
 	protected MazeInfo mazeInfo;
-	private List<Coordinate> allTreasureList;
 	private List<Coordinate> obtainedTreasureList;
 	private List<Coordinate> roomsVisited;
 	protected LinearLayout roomLayout;
+	private ImageView treasureCount;
 	public static final int LEFT_DIRECTION = 0;
 	public static final int RIGHT_DIRECTION = 1;
 	public static final int UP_DIRECTION = 2;
@@ -42,8 +44,7 @@ public class TheMaze extends Activity{
 	public static final int NO_DIRECTION = -1;
 	public static final int DELAY = 3000;//3s
 	public static final int START_ROOM = R.drawable.maze_room_start;
-	//TODO: change to treasure room
-	public static final int TREASURE_ROOM = R.drawable.maze_room_start;
+	public static final int TREASURE_ROOM = R.drawable.maze_room_chest;
 	public static final int OTHER_ROOM = R.drawable.maze_room;
 	protected MovementDrawer md;
 
@@ -64,8 +65,7 @@ public class TheMaze extends Activity{
 
 		//get and set all info regarding this maze
 		this.mazeInfo = new MazeInfo(this.getMazeInfo());
-		this.allTreasureList = this.mazeInfo.getTreasureList();
-		this.obtainedTreasureList = new ArrayList<Coordinate>(this.allTreasureList.size());
+		this.obtainedTreasureList = new ArrayList<Coordinate>();
 		this.roomsVisited = new ArrayList<Coordinate>();
 
 		this.addMazeLayout();
@@ -88,8 +88,29 @@ public class TheMaze extends Activity{
 		//Add background image view
 		this.initStartRoomLayout();
 		ll.addView(this.roomLayout, 1);
+		
+		//add information layer
+		ll.addView(this.getInformationLayout(), 2);
 
 		rlMazeLayout.addView(ll);
+	}
+	
+	
+	private LinearLayout getInformationLayout(){
+		
+		LinearLayout informationLayout = new LinearLayout(this);
+		informationLayout.setOrientation(LinearLayout.HORIZONTAL);
+		informationLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		
+		this.treasureCount = new ImageView(this);
+		Bitmap b = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.obtained_treasures_0), 
+				(int) this.getDeviceWidth()/3, (int) this.getDeviceWidth()/9, false);
+		this.treasureCount.setImageBitmap(b);
+		this.treasureCount.setPadding(0, 0, 0, 0);
+		
+		informationLayout.addView(this.treasureCount);
+		
+		return informationLayout;
 	}
 
 
@@ -156,6 +177,13 @@ public class TheMaze extends Activity{
 			roomSort = START_ROOM;
 		}
 		else if(newRoom.isTreasure()){
+			if (!containsCoordinate(this.obtainedTreasureList, this.mazeInfo.getPlayerCoordinate())){
+				this.obtainedTreasureList.add(new Coordinate(
+						this.mazeInfo.getPlayerCoordinate().getX(), 
+						this.mazeInfo.getPlayerCoordinate().getY()));
+				this.updateTreasureCount(this.obtainedTreasureList.size());
+				Log.e("TheMaze","Treasure chests found: " + this.obtainedTreasureList.size());
+			}
 			roomSort = TREASURE_ROOM;
 		}
 		else {
@@ -168,6 +196,34 @@ public class TheMaze extends Activity{
 		this.md.updateRoom(roomSort, direction, 
 				DoorOverlay.getDoorOverlayDrawable(maze[player.getX()][player.getY()].getBitRoom()));
 	}
+	
+	
+	private void updateTreasureCount(int treasuresObtained){
+		
+		switch(treasuresObtained){
+		
+		case 1: 
+			Bitmap b1 = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.obtained_treasures_1), 
+					(int) this.getDeviceWidth()/3, (int) this.getDeviceWidth()/9, false);
+			this.treasureCount.setImageBitmap(b1);
+			break;
+		case 2:
+			Bitmap b2 = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.obtained_treasures_2), 
+					(int) this.getDeviceWidth()/3, (int) this.getDeviceWidth()/9, false);
+			this.treasureCount.setImageBitmap(b2);
+			break;
+		case 3:
+			Bitmap b3 = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.obtained_treasures_3), 
+					(int) this.getDeviceWidth()/3, (int) this.getDeviceWidth()/9, false);
+			this.treasureCount.setImageBitmap(b3);
+			break;
+		default :
+			Bitmap b0 = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.obtained_treasures_0), 
+					(int) this.getDeviceWidth()/3, (int) this.getDeviceWidth()/9, false);
+			this.treasureCount.setImageBitmap(b0);
+			break;
+		}
+	}
 
 
 	/**
@@ -178,6 +234,13 @@ public class TheMaze extends Activity{
 		return this.getResources().getDisplayMetrics().widthPixels;
 	}
 	
+	/**
+	 * 
+	 * @return the height in pixels of the devices
+	 */
+	protected double getDeviceHeight(){
+		return this.getResources().getDisplayMetrics().heightPixels;
+	}
 
 
 	/**
@@ -263,7 +326,6 @@ public class TheMaze extends Activity{
 
 			mazeInfo.movePlayer(0, 1);
 			//TODO: move enemy
-			//TODO: animate player movement
 
 			updateRoomLayout(maze[player.getX()][player.getY()], RIGHT_DIRECTION);
 		}
@@ -272,7 +334,6 @@ public class TheMaze extends Activity{
 
 			mazeInfo.movePlayer(-1, 0);
 			//TODO: move enemy
-			//TODO: animate player movement
 
 			updateRoomLayout(maze[player.getX()][player.getY()], UP_DIRECTION);
 		}
@@ -281,7 +342,6 @@ public class TheMaze extends Activity{
 
 			mazeInfo.movePlayer(0, -1);
 			//TODO: move enemy
-			//TODO: animate player movement
 
 			updateRoomLayout(maze[player.getX()][player.getY()], LEFT_DIRECTION);
 		}
@@ -290,10 +350,18 @@ public class TheMaze extends Activity{
 
 			mazeInfo.movePlayer(1, 0);
 			//TODO: move enemy
-			//TODO: animate player movement
 
 			updateRoomLayout(maze[player.getX()][player.getY()], DOWN_DIRECTION);
 		}
 
+	}
+	
+	private boolean containsCoordinate(List<Coordinate> list, Coordinate c){
+		for (Coordinate in : list){
+			if (in.getX() == c.getX() && in.getY() == c.getY()){
+				return true;
+			}
+		}
+		return false;
 	}
 }
