@@ -3,7 +3,7 @@ package com.mindblock.mazehunter.maze;
 public class Room {
 
 	
-	private boolean left, right, up, down, start, treasure, enemy;
+	private boolean left, right, up, down, start, treasure, enemy, visited, playerHere;
 	private String bitRoom;
 	
 	public Room(String roomInfo){
@@ -18,6 +18,9 @@ public class Room {
 		this.enemy = bits[6] == '1' ? true : false;
 		
 		this.bitRoom = roomInfo.substring(0, 4);
+		
+		if (this.isStart())
+			this.setVisited();
 	}
 
 	public boolean isLeft() {
@@ -50,5 +53,21 @@ public class Room {
 	
 	public String getBitRoom(){
 		return this.bitRoom;
+	}
+
+	public boolean isVisited() {
+		return visited;
+	}
+
+	public void setVisited() {
+		this.visited = true;
+	}
+	
+	public boolean isPlayerHere(){
+		return this.playerHere;
+	}
+	
+	public void setPlayerHere(boolean playerHere){
+		this.playerHere = playerHere;
 	}
 }

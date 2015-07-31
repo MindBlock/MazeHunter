@@ -79,10 +79,10 @@ public class TheMazeLayout extends Activity{
 			Button levelButton = new Button(this);
 			//This is where we would load the properties of this index
 			//Actually, we would usually just loop over those...
-			
+			//TODO:
 			//Check the completion level
 			
-			levelButton.setBackgroundResource(R.drawable.border_default_completion);
+			levelButton.setBackgroundResource(R.drawable.border_silver_completion);
 			
 			levelButton.setTypeface(this.typeFace);
 			levelButton.setText("Maze " + level);
@@ -93,6 +93,7 @@ public class TheMazeLayout extends Activity{
 			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 			int horizontalOffset = (int) this.getDeviceWidth()/10;
 			params.setMargins(horizontalOffset, 5, horizontalOffset, 5);
+			params.height = (int) (this.getDeviceHeight()/12);
 			levelButton.setLayoutParams(params);
 			
 			scrollLayout.addView(levelButton);

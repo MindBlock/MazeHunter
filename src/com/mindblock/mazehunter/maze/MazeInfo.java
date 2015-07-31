@@ -47,8 +47,17 @@ public class MazeInfo {
 	}
 	
 	public void movePlayer(int xChange, int yChange){
+		//Player moved out of here
+		this.maze[this.player.getX()][this.player.getY()].setPlayerHere(false);
+		
 		this.player.setX(this.player.getX() + xChange);
 		this.player.setY(this.player.getY() + yChange);
+		
+		//Visited
+		this.maze[this.player.getX()][this.player.getY()].setVisited();
+		//And moved into here
+		this.maze[this.player.getX()][this.player.getY()].setPlayerHere(true);
+		
 	}
 	
 	public void moveEnemy(int xChange, int yChange){

@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnTouchListener;
@@ -34,7 +33,6 @@ public class TheMaze extends Activity{
 	private static final int NUMBER_OF_USEABLE_ITEMS = 6;
 	protected MazeInfo mazeInfo;
 	private List<Coordinate> obtainedTreasureList;
-	private List<Coordinate> roomsVisited;
 	protected LinearLayout roomLayout;
 	private ImageView treasureCount;
 	public static final int LEFT_DIRECTION = 0;
@@ -46,6 +44,7 @@ public class TheMaze extends Activity{
 	public static final int START_ROOM = R.drawable.maze_room_start;
 	public static final int TREASURE_ROOM = R.drawable.maze_room_chest;
 	public static final int OTHER_ROOM = R.drawable.maze_room;
+	public static Bitmap startRoom, treasureRoom, otherRoom;
 	protected MovementDrawer md;
 
 
@@ -63,10 +62,15 @@ public class TheMaze extends Activity{
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.maze_game_layout);
 
+		//Init the 3 kinds of rooms
+		int width = (int) this.getDeviceWidth();
+		TheMaze.startRoom = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), TheMaze.START_ROOM), width, width, false);
+		TheMaze.treasureRoom = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), TheMaze.TREASURE_ROOM), width, width, false);
+		TheMaze.otherRoom = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), TheMaze.OTHER_ROOM), width, width, false);
+
 		//get and set all info regarding this maze
 		this.mazeInfo = new MazeInfo(this.getMazeInfo());
 		this.obtainedTreasureList = new ArrayList<Coordinate>();
-		this.roomsVisited = new ArrayList<Coordinate>();
 
 		this.addMazeLayout();
 	}
@@ -88,28 +92,28 @@ public class TheMaze extends Activity{
 		//Add background image view
 		this.initStartRoomLayout();
 		ll.addView(this.roomLayout, 1);
-		
+
 		//add information layer
 		ll.addView(this.getInformationLayout(), 2);
 
 		rlMazeLayout.addView(ll);
 	}
-	
-	
+
+
 	private LinearLayout getInformationLayout(){
-		
+
 		LinearLayout informationLayout = new LinearLayout(this);
 		informationLayout.setOrientation(LinearLayout.HORIZONTAL);
 		informationLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-		
+
 		this.treasureCount = new ImageView(this);
 		Bitmap b = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.obtained_treasures_0), 
 				(int) this.getDeviceWidth()/3, (int) this.getDeviceWidth()/9, false);
 		this.treasureCount.setImageBitmap(b);
 		this.treasureCount.setPadding(0, 0, 0, 0);
-		
+
 		informationLayout.addView(this.treasureCount);
-		
+
 		return informationLayout;
 	}
 
@@ -164,7 +168,7 @@ public class TheMaze extends Activity{
 		Room[][] maze = mazeInfo.getMaze();
 		Coordinate player = this.mazeInfo.getPlayerCoordinate();
 		this.md = new MovementDrawer(this, DoorOverlay.getDoorOverlayDrawable(
-				maze[player.getX()][player.getY()].getBitRoom()), NO_DIRECTION, START_ROOM);
+				maze[player.getX()][player.getY()].getBitRoom()), NO_DIRECTION, START_ROOM, maze.length);
 		this.roomLayout.addView(this.md);
 
 	}
@@ -196,12 +200,12 @@ public class TheMaze extends Activity{
 		this.md.updateRoom(roomSort, direction, 
 				DoorOverlay.getDoorOverlayDrawable(maze[player.getX()][player.getY()].getBitRoom()));
 	}
-	
-	
+
+
 	private void updateTreasureCount(int treasuresObtained){
-		
+
 		switch(treasuresObtained){
-		
+
 		case 1: 
 			Bitmap b1 = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.obtained_treasures_1), 
 					(int) this.getDeviceWidth()/3, (int) this.getDeviceWidth()/9, false);
@@ -233,7 +237,7 @@ public class TheMaze extends Activity{
 	protected double getDeviceWidth(){
 		return this.getResources().getDisplayMetrics().widthPixels;
 	}
-	
+
 	/**
 	 * 
 	 * @return the height in pixels of the devices
@@ -284,15 +288,28 @@ public class TheMaze extends Activity{
 		public boolean onTouch(View v, MotionEvent event) {
 
 			//Do nothing if still drawing
-			if (md.isDrawing()){
+			if (md.isDrawing() || MovementDrawer.exitMinimap){
 				return false;
 			}
+			
 
 			float x = event.getX(); //the most recent x coordinate of the touch
 			float y = event.getY(); //the most recent y coordinate of the touch
 			double direction = Math.atan2(this.sizeImageOver2 - y, x - this.sizeImageOver2) + Math.PI; //[0 ... 2pi]
-
 			
+			//Check if minimap is clicked, bottom right: 5*size/6, 5*size/6
+			if (x > 5*getDeviceWidth()/6 && y > 5*getDeviceWidth()/6){
+				Log.e("MINIMAP", "MINIMAP CLICKED");
+				MovementDrawer.running = true;
+				md.minimapClicked(mazeInfo.getMaze());
+				//exit method, no movement should be possible in either case
+				return false;
+			}
+
+			if (MovementDrawer.minimapClicked) {
+				return false;
+			}
+
 			Room[][] maze = mazeInfo.getMaze();
 			Coordinate player = mazeInfo.getPlayerCoordinate();
 			Room thisRoom = maze[player.getX()][player.getY()];
@@ -355,7 +372,7 @@ public class TheMaze extends Activity{
 		}
 
 	}
-	
+
 	private boolean containsCoordinate(List<Coordinate> list, Coordinate c){
 		for (Coordinate in : list){
 			if (in.getX() == c.getX() && in.getY() == c.getY()){
@@ -363,5 +380,17 @@ public class TheMaze extends Activity{
 			}
 		}
 		return false;
+	}
+
+
+	public static Bitmap getRoomImage(int room){
+
+		if (room == TheMaze.START_ROOM){
+			return TheMaze.startRoom;
+		}
+		else if (room == TheMaze.TREASURE_ROOM){
+			return TheMaze.treasureRoom;
+		}
+		return TheMaze.otherRoom;
 	}
 }
