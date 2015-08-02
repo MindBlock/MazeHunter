@@ -30,8 +30,10 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 	private final int INTRO_MESSAGE_DURATION = 150; //ticks
 	private int currentIntroMessageTicks = 0;
 	private boolean startIntroMessageTicking = false;
+	private boolean playerImageUpToDate = false;
 	private int mazeSize;
 	private Room[][] roomsVisited;
+	private PlayerImage pImage;
 
 	private final int MOVE_OUT = 0;
 	private final int MOVE_IN = 1;
@@ -80,17 +82,23 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 	public void drawPlayer(Canvas canvas){
 		if (MovementDrawer.running && canvas != null) {
 
+			//Init sprites of player movement
+			if (!this.playerImageUpToDate) {
+				 this.pImage = new PlayerImage(MovementDrawer.direction, this.getContext());
+				 this.playerImageUpToDate = true;
+			}
+			
 			//First check if this is the start phase
 			if (this.drawingIntroMessage){
 				if (this.initiation){
 					this.initiation = false;
 					this.drawFirstRoom(canvas);
-					this.drawMinimapSmall(canvas, false);
 				}
 				this.drawIntroMessage(canvas);
 			}
 			else {
 
+				
 				int moveResult = this.movePlayer();
 				if (this.MOVE_OUT == moveResult){
 					this.drawFirstRoom(canvas);
@@ -165,14 +173,17 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 		canvas.drawBitmap(MovementDrawer.roomBackground1, 0, 0, this.p);
 		canvas.drawBitmap(MovementDrawer.doorImageRoom1, 0, 0, this.p);
 
-		canvas.drawCircle(this.xPlayer, this.yPlayer, 15, this.p);
+		//TODO: Replace with actual player
+		canvas.drawBitmap(this.pImage.getNextImage(), this.xPlayer-20, this.yPlayer-40, this.p);
 	}
 
 	public void drawSecondRoom(Canvas canvas){
 
 		canvas.drawBitmap(MovementDrawer.roomBackground2, 0, 0, this.p);
 		canvas.drawBitmap(MovementDrawer.doorImageRoom2, 0, 0, this.p);
-		canvas.drawCircle(this.xPlayer, this.yPlayer, 15, this.p);
+		
+		//TODO: Replace with actual player
+		canvas.drawBitmap(this.pImage.getNextImage(), this.xPlayer-20, this.yPlayer-40, this.p);
 	}
 
 	public void drawMinimapSmall(Canvas canvas, boolean minimapEnabled){

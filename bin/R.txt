@@ -444,6 +444,7 @@ int drawable obtained_treasures_1 0x7f020060
 int drawable obtained_treasures_2 0x7f020061
 int drawable obtained_treasures_3 0x7f020062
 int drawable player_token 0x7f020063
+int drawable the_dude_front_0 0x7f020064
 int id action_bar 0x7f090040
 int id action_bar_activity_content 0x7f090003
 int id action_bar_container 0x7f09003f
