@@ -39,6 +39,8 @@ public class TheMazeLayout extends Activity{
 		setContentView(R.layout.the_maze_layout);
 		this.typeFace = Typeface.createFromAsset(getAssets(),"fonts/bitwise.ttf");
 
+		//TODO: Make fragments, current level use dumb AI and progress per fragment
+		
 		this.addListOfLevels();
 	}
 	

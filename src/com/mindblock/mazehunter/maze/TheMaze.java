@@ -25,6 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.mindblock.mazehunter.R;
+import com.mindblock.mazehunter.maze.enemy.Enemy;
 
 public class TheMaze extends Activity{
 
@@ -46,6 +47,7 @@ public class TheMaze extends Activity{
 	public static final int OTHER_ROOM = R.drawable.maze_room;
 	public static Bitmap startRoom, treasureRoom, otherRoom;
 	protected MovementDrawer md;
+	protected Enemy enemy;
 
 
 	@Override
@@ -57,6 +59,7 @@ public class TheMaze extends Activity{
 			this.completion= extras.getString("COMPLETION");
 			this.level = extras.getInt("LEVEL");
 		}
+		
 
 		//Remove title bar
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -71,6 +74,9 @@ public class TheMaze extends Activity{
 		//get and set all info regarding this maze
 		this.mazeInfo = new MazeInfo(this.getMazeInfo());
 		this.obtainedTreasureList = new ArrayList<Coordinate>();
+
+		//TODO: Check what difficulty of enemy should be!
+		this.enemy = new Enemy(this.mazeInfo, Enemy.STRATEGY_RANDOM);
 
 		this.addMazeLayout();
 	}
@@ -342,7 +348,7 @@ public class TheMaze extends Activity{
 		private void goRight(Coordinate player, Room[][] maze, Room room){
 
 			mazeInfo.movePlayer(0, 1);
-			//TODO: move enemy
+			enemy.move();
 
 			updateRoomLayout(maze[player.getX()][player.getY()], RIGHT_DIRECTION);
 		}
@@ -350,7 +356,7 @@ public class TheMaze extends Activity{
 		private void goUp(Coordinate player, Room[][] maze, Room room){
 
 			mazeInfo.movePlayer(-1, 0);
-			//TODO: move enemy
+			enemy.move();
 
 			updateRoomLayout(maze[player.getX()][player.getY()], UP_DIRECTION);
 		}
@@ -358,7 +364,7 @@ public class TheMaze extends Activity{
 		private void goLeft(Coordinate player, Room[][] maze, Room room){
 
 			mazeInfo.movePlayer(0, -1);
-			//TODO: move enemy
+			enemy.move();
 
 			updateRoomLayout(maze[player.getX()][player.getY()], LEFT_DIRECTION);
 		}
@@ -366,7 +372,7 @@ public class TheMaze extends Activity{
 		private void goDown(Coordinate player, Room[][] maze, Room room){
 
 			mazeInfo.movePlayer(1, 0);
-			//TODO: move enemy
+			enemy.move();
 
 			updateRoomLayout(maze[player.getX()][player.getY()], DOWN_DIRECTION);
 		}

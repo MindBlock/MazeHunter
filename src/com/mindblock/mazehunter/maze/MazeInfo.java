@@ -61,8 +61,14 @@ public class MazeInfo {
 	}
 	
 	public void moveEnemy(int xChange, int yChange){
+		//Enemy moved out of this room
+		this.maze[this.enemy.getX()][this.enemy.getY()].setEnemyHere(false);
+		
 		this.enemy.setX(this.enemy.getX() + xChange);
 		this.enemy.setY(this.enemy.getY() + yChange);
+		
+		//And entered this one:
+		this.maze[this.enemy.getX()][this.enemy.getY()].setEnemyHere(true);
 	}
 	
 	public List<Coordinate> getTreasureList(){

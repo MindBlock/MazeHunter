@@ -70,4 +70,8 @@ public class Room {
 	public void setPlayerHere(boolean playerHere){
 		this.playerHere = playerHere;
 	}
+	
+	public void setEnemyHere(boolean enemyHere){
+		this.enemy = enemyHere;
+	}
 }
