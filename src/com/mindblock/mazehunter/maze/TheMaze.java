@@ -30,11 +30,11 @@ public class TheMaze extends Activity{
 
 	private int level;
 	private String completion;
-	private static final int NUMBER_OF_USEABLE_ITEMS = 6;
 	protected MazeInfo mazeInfo;
 	private List<Coordinate> obtainedTreasureList;
 	protected LinearLayout roomLayout;
 	private ImageView treasureCount;
+	private static final int NUMBER_OF_USEABLE_ITEMS = 6;
 	public static final int LEFT_DIRECTION = 0;
 	public static final int RIGHT_DIRECTION = 1;
 	public static final int UP_DIRECTION = 2;

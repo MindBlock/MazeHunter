@@ -27,17 +27,19 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 	public static boolean exitMinimap = false;
 	private boolean initiation = true;
 	private boolean drawingIntroMessage = true;
-	private final int INTRO_MESSAGE_DURATION = 150; //ticks
 	private int currentIntroMessageTicks = 0;
+	private int currentFrames = 0;
 	private boolean startIntroMessageTicking = false;
-	private boolean playerImageUpToDate = false;
 	private int mazeSize;
 	private Room[][] roomsVisited;
 	private PlayerImage pImage;
+	private int size;
 
+	private final int INTRO_MESSAGE_DURATION = 150; //ticks
 	private final int MOVE_OUT = 0;
 	private final int MOVE_IN = 1;
 	private final int MOVE_DONE = -1;
+	private final int FRAMES_PER_UPDATE = 10;
 
 	private final double SPEED = 3.5;
 
@@ -45,27 +47,29 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 		super(context);
 
 		this.mazeSize = mazeSize;
-		int width = this.getDeviceWidth();
+		this.size = this.getDeviceWidth();
 		MovementDrawer.direction = direction;
 		//Scale the image
-		MovementDrawer.roomBackground1 = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), roomDrawable), width, width, false);
-		MovementDrawer.doorImageRoom1 = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), doorOverlayRoom), width, width, false);
+		MovementDrawer.roomBackground1 = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), roomDrawable), this.size, this.size, false);
+		MovementDrawer.doorImageRoom1 = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), doorOverlayRoom), this.size, this.size, false);
 
 		//Set room 2 to null
 		MovementDrawer.roomBackground2 = null;
 		MovementDrawer.doorImageRoom2 = null;
 
-		MovementDrawer.minimapEnter = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.minimap), width/6, width/6, false);
-		MovementDrawer.minimapExit = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.exit_minimap), width/6, width/6, false);
+		MovementDrawer.minimapEnter = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.minimap), this.size/6, this.size/6, false);
+		MovementDrawer.minimapExit = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.exit_minimap), this.size/6, this.size/6, false);
 
-		int sizePerRoom = (int) ((double) (0.7*this.getDeviceWidth())/this.mazeSize) - 2;
+		int sizePerRoom = (int) ((double) (0.7*this.size)/this.mazeSize) - 2;
 		this.enemyToken = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.enemy_token), sizePerRoom, sizePerRoom, false);
 		this.playerToken = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.player_token), sizePerRoom, sizePerRoom, false);
-		
-		this.xPlayer = width/2;
-		this.yPlayer = width/2;
+
+		this.xPlayer = this.size/2;
+		this.yPlayer = this.size/2;
 		this.wIntroMessage = 20f;
 		this.hIntroMessage = 0.125f*20f;
+
+		this.pImage = new PlayerImage(context, this.size);
 
 		setZOrderOnTop(true);
 		// Tell the SurfaceHolder ( -> getHolder() ) to receive SurfaceHolder
@@ -82,29 +86,22 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 	public void drawPlayer(Canvas canvas){
 		if (MovementDrawer.running && canvas != null) {
 
-			//Init sprites of player movement
-			if (!this.playerImageUpToDate) {
-				 this.pImage = new PlayerImage(MovementDrawer.direction, this.getContext());
-				 this.playerImageUpToDate = true;
-			}
-			
 			//First check if this is the start phase
 			if (this.drawingIntroMessage){
 				if (this.initiation){
 					this.initiation = false;
-					this.drawFirstRoom(canvas);
+					this.drawFirstRoom(canvas, false);
 				}
 				this.drawIntroMessage(canvas);
 			}
 			else {
 
-				
 				int moveResult = this.movePlayer();
 				if (this.MOVE_OUT == moveResult){
-					this.drawFirstRoom(canvas);
+					this.drawFirstRoom(canvas, true);
 				}
 				else if (this.MOVE_IN == moveResult){
-					this.drawSecondRoom(canvas);
+					this.drawSecondRoom(canvas, true);
 				}
 
 				//If neither moving out or into a room, stop updating and drawing
@@ -114,10 +111,14 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 						this.drawMinimap(canvas);
 					//If the exit minimap button has been clicked, draw
 					if (MovementDrawer.exitMinimap){
+						
+						//force draw
+						this.currentFrames = 0;
+						
 						try{
-							this.drawSecondRoom(canvas);
+							this.drawSecondRoom(canvas, false);
 						} catch(NullPointerException e){
-							this.drawFirstRoom(canvas);
+							this.drawFirstRoom(canvas, false);
 						}
 						MovementDrawer.exitMinimap = false;
 					}
@@ -131,8 +132,8 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 
 
 	public void drawIntroMessage(Canvas canvas){
-		
-		float size = this.getDeviceWidth();
+
+		float size = this.size;
 		double finalWidth = 0.8*size;
 
 		if (!this.startIntroMessageTicking){
@@ -144,7 +145,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 			this.currentIntroMessageTicks += 1;
 		}
 
-		this.drawFirstRoom(canvas);
+		this.drawFirstRoom(canvas, false);
 		Bitmap introMessage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(
 				getResources(), R.drawable.intro_message_maze), 
 				(int) (this.wIntroMessage), 
@@ -158,7 +159,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 
 		if (this.currentIntroMessageTicks >= this.INTRO_MESSAGE_DURATION){
 
-			this.drawFirstRoom(canvas);
+			this.drawFirstRoom(canvas, false);
 			this.drawMinimapSmall(canvas, false);
 
 			this.currentIntroMessageTicks = 0;
@@ -168,49 +169,66 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 		}
 	}
 
-	public void drawFirstRoom(Canvas canvas){
+	public void drawFirstRoom(Canvas canvas, boolean updateImage){
 
 		canvas.drawBitmap(MovementDrawer.roomBackground1, 0, 0, this.p);
 		canvas.drawBitmap(MovementDrawer.doorImageRoom1, 0, 0, this.p);
 
-		//TODO: Replace with actual player
-		canvas.drawBitmap(this.pImage.getNextImage(), this.xPlayer-20, this.yPlayer-40, this.p);
+		this.drawPlayerInRoom(canvas, updateImage);
 	}
 
-	public void drawSecondRoom(Canvas canvas){
+	public void drawSecondRoom(Canvas canvas, boolean updateImage){
 
 		canvas.drawBitmap(MovementDrawer.roomBackground2, 0, 0, this.p);
 		canvas.drawBitmap(MovementDrawer.doorImageRoom2, 0, 0, this.p);
+
+		this.drawPlayerInRoom(canvas, updateImage);
+	}
+	
+	
+	private void drawPlayerInRoom(Canvas canvas, boolean updateImage){
 		
-		//TODO: Replace with actual player
-		canvas.drawBitmap(this.pImage.getNextImage(), this.xPlayer-20, this.yPlayer-40, this.p);
+		if (!updateImage){
+			canvas.drawBitmap(this.pImage.getImage(MovementDrawer.direction), this.xPlayer - this.size/8, this.yPlayer - this.size/8, this.p);
+		}
+
+		//Only update image once per X frames passed
+		else {
+			if (this.currentFrames % this.FRAMES_PER_UPDATE == 0){
+				canvas.drawBitmap(this.pImage.getNextImage(MovementDrawer.direction), this.xPlayer - this.size/8, this.yPlayer - this.size/8, this.p);
+				this.currentFrames = 0;
+			}
+			else {
+				canvas.drawBitmap(this.pImage.getImage(MovementDrawer.direction), this.xPlayer - this.size/8, this.yPlayer - this.size/8, this.p);
+			}
+			this.currentFrames += 1;
+		}
 	}
 
 	public void drawMinimapSmall(Canvas canvas, boolean minimapEnabled){
-		int size = this.getDeviceWidth();
 		if (minimapEnabled)
-			canvas.drawBitmap(MovementDrawer.minimapExit, 5*size/6, 5*size/6, this.p);
+			canvas.drawBitmap(MovementDrawer.minimapExit, 5*this.size/6, 5*this.size/6, this.p);
 		else
-			canvas.drawBitmap(MovementDrawer.minimapEnter, 5*size/6, 5*size/6, this.p);
+			canvas.drawBitmap(MovementDrawer.minimapEnter, 5*this.size/6, 5*this.size/6, this.p);
 	}
 
 	private void drawMinimap(Canvas canvas){
 		//Fill 70% with minimap
-		int size = (int) (0.7*this.getDeviceWidth());
-		int offSet = (int) (0.15*this.getDeviceWidth());
+		int size = (int) (0.7*this.size);
+		int offSet = (int) (0.15*this.size);
 		int sizePerRoom = (int) ((double) size/this.mazeSize);
-		
+
 		//Outer contour
 		this.p.setColor(Color.rgb(0, 38, 78));
 		Rect r = new Rect(offSet-5, offSet-5, size+5+offSet, size+5+offSet);
 		canvas.drawRect(r, this.p);
-		
+
 		int width = this.roomsVisited.length;
 		int height = this.roomsVisited[0].length;
-		
+
 		for (int w = 0; w < width; w++){
 			for (int h = 0; h < height; h++){
-				
+
 				Room room = this.roomsVisited[w][h];
 				if (room.isVisited())
 					if (room.isTreasure())
@@ -219,26 +237,26 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 						this.p.setColor(Color.rgb(236, 255, 255));
 				else 
 					this.p.setColor(Color.rgb(49, 46, 89));
-				
+
 				Rect rect = new Rect(offSet + h*sizePerRoom + 1, offSet + w*sizePerRoom + 1, 
 						offSet + (h+1)*sizePerRoom - 1, offSet + (w+1)*sizePerRoom - 1);
 				canvas.drawRect(rect, this.p);
-				
+
 				if (room.isPlayerHere()){
 					canvas.drawBitmap(this.playerToken, 
 							offSet + h*sizePerRoom, offSet + w*sizePerRoom, this.p);
 				}
-				
+
 				if (room.isEnemy()){
 					canvas.drawBitmap(this.enemyToken, 
 							offSet + h*sizePerRoom, offSet + w*sizePerRoom, this.p);
 				}
-				
+
 				//Check doors
 				if (room.isVisited()){
-					
+
 					this.p.setColor(Color.rgb(78, 168, 15));
-					
+
 					if (room.isUp()){
 						Rect doorRect = new Rect(offSet + h*sizePerRoom + (int) (0.333*sizePerRoom), 
 								offSet + w*sizePerRoom, 
@@ -246,7 +264,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 								offSet + w*sizePerRoom + 3);
 						canvas.drawRect(doorRect, this.p);
 					}
-					
+
 					if (room.isDown()){
 						Rect doorRect = new Rect(offSet + h*sizePerRoom + (int) (0.333*sizePerRoom), 
 								offSet + (w+1)*sizePerRoom - 3, 
@@ -254,7 +272,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 								offSet + (w+1)*sizePerRoom);
 						canvas.drawRect(doorRect, this.p);
 					}
-					
+
 					if (room.isLeft()){
 						Rect doorRect = new Rect(offSet + h*sizePerRoom, 
 								offSet + w*sizePerRoom + (int) (0.333*sizePerRoom), 
@@ -262,7 +280,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 								offSet + w*sizePerRoom + (int) (0.667*sizePerRoom));
 						canvas.drawRect(doorRect, this.p);
 					}
-					
+
 					if (room.isRight()){
 						Rect doorRect = new Rect(offSet + (h+1)*sizePerRoom - 3, 
 								offSet + w*sizePerRoom + (int) (0.333*sizePerRoom), 
@@ -444,7 +462,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 		// this is a clean shutdown
 		MovementDrawer.minimapClicked = false;
 		MovementDrawer.exitMinimap = false;
-		
+
 		this.thread.setRunning(false);
 		boolean retry = true;
 		while (retry) {
