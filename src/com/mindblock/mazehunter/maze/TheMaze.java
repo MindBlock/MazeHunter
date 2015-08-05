@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -26,11 +27,13 @@ import android.widget.RelativeLayout;
 
 import com.mindblock.mazehunter.R;
 import com.mindblock.mazehunter.maze.enemy.Enemy;
+import com.mindblock.mazehunter.save.LevelCompletion;
 
 public class TheMaze extends Activity{
 
 	private int level;
 	private String completion;
+	private int mazeFragment;
 	protected MazeInfo mazeInfo;
 	private List<Coordinate> obtainedTreasureList;
 	protected LinearLayout roomLayout;
@@ -48,6 +51,7 @@ public class TheMaze extends Activity{
 	public static Bitmap startRoom, treasureRoom, otherRoom;
 	protected MovementDrawer md;
 	protected Enemy enemy;
+	private LevelCompletion levelCompletion;
 
 
 	@Override
@@ -55,9 +59,10 @@ public class TheMaze extends Activity{
 		super.onCreate(savedInstanceState);
 
 		Bundle extras = getIntent().getExtras();
-		if (extras != null && extras.containsKey("COMPLETION") && extras.containsKey("LEVEL")) {
+		if (extras != null && extras.containsKey("COMPLETION") && extras.containsKey("LEVEL") && extras.containsKey("MAZE_FRAGMENT")) {
 			this.completion= extras.getString("COMPLETION");
 			this.level = extras.getInt("LEVEL");
+			this.mazeFragment = extras.getInt("MAZE_FRAGMENT");
 		}
 		
 
@@ -75,6 +80,10 @@ public class TheMaze extends Activity{
 		this.mazeInfo = new MazeInfo(this.getMazeInfo());
 		this.obtainedTreasureList = new ArrayList<Coordinate>();
 
+		//Initialize level completion map
+		this.levelCompletion = new LevelCompletion();
+		this.levelCompletion.load(this);
+		
 		//TODO: Check what difficulty of enemy should be!
 		this.enemy = new Enemy(this.mazeInfo, Enemy.STRATEGY_RANDOM);
 
@@ -210,6 +219,26 @@ public class TheMaze extends Activity{
 
 	private void updateTreasureCount(int treasuresObtained){
 
+		//Check if player bested own score
+		int bestTreasures = 0;
+		
+		if (TheMazeLayout1.COMPLETION_GOLD.equals(this.completion)) bestTreasures = 3;
+		else if (TheMazeLayout1.COMPLETION_SILVER.equals(this.completion)) bestTreasures = 2;
+		else if (TheMazeLayout1.COMPLETION_BRONZE.equals(this.completion)) bestTreasures = 1;
+		
+		if (treasuresObtained > bestTreasures){
+			String newCompletion = TheMazeLayout1.COMPLETION_BRONZE;
+			
+			if (treasuresObtained == 2) newCompletion = TheMazeLayout1.COMPLETION_SILVER;
+			else if (treasuresObtained == 3) newCompletion = TheMazeLayout1.COMPLETION_GOLD;
+			
+			//Update completion
+			this.levelCompletion.getMazeCompletionList().get(this.mazeFragment-1).put(this.level, newCompletion);
+			//Save it
+			this.levelCompletion.save(this);
+		}
+		//Done checking
+		
 		switch(treasuresObtained){
 
 		case 1: 
@@ -398,5 +427,11 @@ public class TheMaze extends Activity{
 			return TheMaze.treasureRoom;
 		}
 		return TheMaze.otherRoom;
+	}
+	
+
+	public void onBackPressed(){
+		Intent i = new Intent(TheMaze.this,TheMazeLayout1.class);    
+        startActivity(i);  
 	}
 }

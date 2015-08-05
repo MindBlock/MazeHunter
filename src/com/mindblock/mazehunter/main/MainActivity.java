@@ -1,7 +1,8 @@
 package com.mindblock.mazehunter.main;
 
 import com.mindblock.mazehunter.R;
-import com.mindblock.mazehunter.maze.TheMazeLayout;
+import com.mindblock.mazehunter.maze.TheMaze;
+import com.mindblock.mazehunter.maze.TheMazeLayout1;
 import com.mindblock.mazehunter.shop.ShopLayout;
 import com.mindblock.mazehunter.skills.SkillsLayout;
 
@@ -100,7 +101,7 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(MainActivity.this, TheMazeLayout.class);
+				Intent intent = new Intent(MainActivity.this, TheMazeLayout1.class);
 				//Add extras?
 				MainActivity.this.startActivity(intent);
 			}
@@ -152,5 +153,12 @@ public class MainActivity extends Activity {
 		private SpecificButton(int ID){
 			this.ID = ID;
 		}
+	}
+	
+	public void onBackPressed(){
+		Intent intent = new Intent(Intent.ACTION_MAIN);
+		intent.addCategory(Intent.CATEGORY_HOME);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(intent);
 	}
 }

@@ -1,8 +1,10 @@
 package com.mindblock.mazehunter.maze;
 
+import java.util.Map;
+
 import com.mindblock.mazehunter.R;
 import com.mindblock.mazehunter.main.MainActivity;
-import com.mindblock.mazehunter.shop.ShopLayout;
+import com.mindblock.mazehunter.save.LevelCompletion;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -19,16 +21,16 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 
-public class TheMazeLayout extends Activity{
+public class TheMazeLayout1 extends Activity{
 	
-	private static final int NUMBER_OF_LEVELS = 50;
-	private static final int LEVELS_UNLOCKED = 1;
+	public static final int LEVELS_TOTAL = 100;
 	
-	private static final String COMPLETION_NONE = "NONE";
-	private static final String COMPLETION_BRONZE = "BRONZE";
-	private static final String COMPLETION_SILVER = "SILVER";
-	private static final String COMPLETION_GOLD = "GOLD";
+	public static final String COMPLETION_NONE = "NONE";
+	public static final String COMPLETION_BRONZE = "BRONZE";
+	public static final String COMPLETION_SILVER = "SILVER";
+	public static final String COMPLETION_GOLD = "GOLD";
 	private Typeface typeFace;
+	private LevelCompletion levelCompletion;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +40,8 @@ public class TheMazeLayout extends Activity{
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.the_maze_layout);
 		this.typeFace = Typeface.createFromAsset(getAssets(),"fonts/bitwise.ttf");
+		
+		this.levelCompletion = new LevelCompletion();
 
 		//TODO: Make fragments, current level use dumb AI and progress per fragment
 		
@@ -77,19 +81,40 @@ public class TheMazeLayout extends Activity{
 	
 	
 	private void addMazeButtons(LinearLayout scrollLayout){
-		for (int level = 1; level <= LEVELS_UNLOCKED; level++){
+		
+		this.levelCompletion.load(this);
+		
+		Map<Integer, String> completionMap = this.levelCompletion.getMazeCompletionList().get(0);
+		
+		for (int level = 1; level <= LEVELS_TOTAL; level++){
 			Button levelButton = new Button(this);
-			//This is where we would load the properties of this index
-			//Actually, we would usually just loop over those...
-			//TODO:
-			//Check the completion level
 			
-			levelButton.setBackgroundResource(R.drawable.border_silver_completion);
+			String completion = completionMap.get(level);
+			
+			//Check completion
+			//Gold?
+			if (TheMazeLayout1.COMPLETION_GOLD.equals(completion)){
+				levelButton.setBackgroundResource(R.drawable.border_gold_completion);
+				levelButton.setOnClickListener(new LevelListener(level, COMPLETION_GOLD));
+			}
+			//Silver?
+			else if (TheMazeLayout1.COMPLETION_SILVER.equals(completion)){
+				levelButton.setBackgroundResource(R.drawable.border_silver_completion);
+				levelButton.setOnClickListener(new LevelListener(level, COMPLETION_SILVER));
+			}
+			//Bronze?
+			else if (TheMazeLayout1.COMPLETION_BRONZE.equals(completion)){
+				levelButton.setBackgroundResource(R.drawable.border_bronze_completion);
+				levelButton.setOnClickListener(new LevelListener(level, COMPLETION_BRONZE));
+			}
+			//Default, None
+			else {
+				levelButton.setBackgroundResource(R.drawable.border_default_completion);
+				levelButton.setOnClickListener(new LevelListener(level, COMPLETION_NONE));
+			}
 			
 			levelButton.setTypeface(this.typeFace);
 			levelButton.setText("Maze " + level);
-			
-			levelButton.setOnClickListener(new LevelListener(level, COMPLETION_NONE));
 			
 			//Set margin:
 			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
@@ -100,6 +125,12 @@ public class TheMazeLayout extends Activity{
 			
 			scrollLayout.addView(levelButton);
 		}
+	}
+	
+	
+	//TODO: implement this =)
+	public void updateMazeButtons(){
+		
 	}
 	
 	private ImageView getLevelImage(){
@@ -126,11 +157,12 @@ public class TheMazeLayout extends Activity{
 		
 		@Override
 		public void onClick(View v) {
-			Intent intent = new Intent(TheMazeLayout.this, TheMaze.class);
+			Intent intent = new Intent(TheMazeLayout1.this, TheMaze.class);
 			//Add extras?
 			intent.putExtra("COMPLETION", this.completion);
 			intent.putExtra("LEVEL", this.level);
-			TheMazeLayout.this.startActivity(intent);
+			intent.putExtra("MAZE_FRAGMENT", 1);
+			TheMazeLayout1.this.startActivity(intent);
 		}
 		
 	}
@@ -141,5 +173,10 @@ public class TheMazeLayout extends Activity{
 	
 	private double getDeviceWidth(){
 		return this.getResources().getDisplayMetrics().widthPixels;
+	}
+	
+	public void onBackPressed(){
+		Intent i = new Intent(TheMazeLayout1.this,MainActivity.class);    
+        startActivity(i);  
 	}
 }

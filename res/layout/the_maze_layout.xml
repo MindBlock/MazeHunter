@@ -3,6 +3,6 @@
     android:id="@+id/rl_maze_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context="com.mindblock.mazehunter.maze.TheMazeLayout" >
+    tools:context="com.mindblock.mazehunter.maze.TheMazeLayout1" >
 
 </RelativeLayout>

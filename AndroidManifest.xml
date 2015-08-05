@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.mindblock.mazehunter.maze.TheMazeLayout"
+            android:name="com.mindblock.mazehunter.maze.TheMazeLayout1"
             android:screenOrientation="portrait" >
         </activity>
         <activity
