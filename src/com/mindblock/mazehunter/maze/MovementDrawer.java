@@ -38,7 +38,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 	private final int MOVE_DONE = -1;
 	private final int FRAMES_PER_UPDATE = 10;
 
-	private final double SPEED = 3.5;
+	private final double SPEED = 3.5*4;
 
 	public MovementDrawer(Context context, int doorOverlayRoom, int direction, int roomDrawable, int mazeSize) {
 		super(context);
