@@ -1,7 +1,6 @@
 package com.mindblock.mazehunter.main;
 
 import com.mindblock.mazehunter.R;
-import com.mindblock.mazehunter.maze.TheMaze;
 import com.mindblock.mazehunter.maze.TheMazeLayout1;
 import com.mindblock.mazehunter.shop.ShopLayout;
 import com.mindblock.mazehunter.skills.SkillsLayout;

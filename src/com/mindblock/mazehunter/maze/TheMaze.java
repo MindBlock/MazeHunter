@@ -332,7 +332,7 @@ public class TheMaze extends Activity{
 			float y = event.getY(); //the most recent y coordinate of the touch
 			double direction = Math.atan2(this.sizeImageOver2 - y, x - this.sizeImageOver2) + Math.PI; //[0 ... 2pi]
 			
-			//Check if minimap is clicked, bottom right: 5*size/6, 5*size/6
+			//Check if mini-map is clicked, bottom right: 5*size/6, 5*size/6
 			if (x > 5*getDeviceWidth()/6 && y > 5*getDeviceWidth()/6){
 				Log.e("MINIMAP", "MINIMAP CLICKED");
 				MovementDrawer.running = true;
