@@ -128,11 +128,6 @@ public class TheMazeLayout1 extends Activity{
 	}
 	
 	
-	//TODO: implement this =)
-	public void updateMazeButtons(){
-		
-	}
-	
 	private ImageView getLevelImage(){
 		ImageView levelImage = new ImageView(this);
 		levelImage.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
@@ -143,6 +138,13 @@ public class TheMazeLayout1 extends Activity{
 		levelImage.setMaxHeight(maxHeight);
 		
 		return levelImage;
+	}
+	
+	
+	protected void setLoadingScreen(){
+		setContentView(R.layout.loading_screen);
+		RelativeLayout rlMazeLayout = (RelativeLayout) findViewById(R.id.rl_maze_loading);
+		rlMazeLayout.setBackgroundResource(R.drawable.background_main_loading);
 	}
 	
 	public class LevelListener implements OnClickListener{
@@ -157,6 +159,10 @@ public class TheMazeLayout1 extends Activity{
 		
 		@Override
 		public void onClick(View v) {
+			
+			//Show loading screen until maze is loaded
+			setLoadingScreen();
+			
 			Intent intent = new Intent(TheMazeLayout1.this, TheMaze.class);
 			//Add extras?
 			intent.putExtra("COMPLETION", this.completion);

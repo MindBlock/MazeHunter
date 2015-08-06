@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -215,6 +217,7 @@ public class TheMaze extends Activity{
 		this.md.updateRoom(roomSort, direction, 
 				DoorOverlay.getDoorOverlayDrawable(maze[player.getX()][player.getY()].getBitRoom()));
 	}
+	
 
 
 	private void updateTreasureCount(int treasuresObtained){
@@ -431,7 +434,26 @@ public class TheMaze extends Activity{
 	
 
 	public void onBackPressed(){
-		Intent i = new Intent(TheMaze.this,TheMazeLayout1.class);    
-        startActivity(i);  
+		
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Are you sure you wish to exit?").setPositiveButton("Yes", dialogClickListener)
+            .setNegativeButton("No", dialogClickListener).show();
+        
 	}
+	
+	DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+	    @Override
+	    public void onClick(DialogInterface dialog, int which) {
+	        switch (which){
+	        case DialogInterface.BUTTON_POSITIVE:
+	        	Intent i = new Intent(TheMaze.this,TheMazeLayout1.class);    
+	            startActivity(i);  
+	            break;
+
+	        case DialogInterface.BUTTON_NEGATIVE:
+	            //No button clicked
+	            break;
+	        }
+	    }
+	};
 }
