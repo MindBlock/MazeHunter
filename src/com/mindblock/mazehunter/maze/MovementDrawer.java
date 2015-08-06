@@ -19,23 +19,19 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 	public Bitmap enemyToken, playerToken;
 	private Paint p;
 	public static int direction;
-	private float xPlayer, yPlayer, wIntroMessage, hIntroMessage;
+	private float xPlayer, yPlayer;
 	private MainThread thread;
 	public static boolean running = true;
 	public static boolean moveingOutOfRoom = true;
 	public static boolean minimapClicked = false;
 	public static boolean exitMinimap = false;
 	private boolean initiation = true;
-	private boolean drawingIntroMessage = true;
-	private int currentIntroMessageTicks = 0;
 	private int currentFrames = 0;
-	private boolean startIntroMessageTicking = false;
 	private int mazeSize;
 	private Room[][] roomsVisited;
 	private PlayerImage pImage;
 	private int size;
 
-	private final int INTRO_MESSAGE_DURATION = 150; //ticks
 	private final int MOVE_OUT = 0;
 	private final int MOVE_IN = 1;
 	private final int MOVE_DONE = -1;
@@ -66,8 +62,6 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 
 		this.xPlayer = this.size/2;
 		this.yPlayer = this.size/2;
-		this.wIntroMessage = 20f;
-		this.hIntroMessage = 0.125f*20f;
 
 		this.pImage = new PlayerImage(context, this.size);
 
@@ -86,88 +80,43 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 	public void drawPlayer(Canvas canvas){
 		if (MovementDrawer.running && canvas != null) {
 
-			//First check if this is the start phase
-			if (this.drawingIntroMessage){
-				if (this.initiation){
-					this.initiation = false;
-					this.drawFirstRoom(canvas, false);
-				}
-				this.drawIntroMessage(canvas);
+			if(this.initiation){
+				this.drawFirstRoom(canvas, false);
+				this.initiation = false;
 			}
+
+			int moveResult = this.movePlayer();
+			if (this.MOVE_OUT == moveResult){
+				this.drawFirstRoom(canvas, true);
+			}
+			else if (this.MOVE_IN == moveResult){
+				this.drawSecondRoom(canvas, true);
+			}
+
+			//If neither moving out or into a room, stop updating and drawing
 			else {
+				Log.e("MovementDrawer", "Drawing set to false");
+				if (MovementDrawer.minimapClicked)
+					this.drawMinimap(canvas);
+				//If the exit minimap button has been clicked, draw
+				if (MovementDrawer.exitMinimap){
 
-				int moveResult = this.movePlayer();
-				if (this.MOVE_OUT == moveResult){
-					this.drawFirstRoom(canvas, true);
-				}
-				else if (this.MOVE_IN == moveResult){
-					this.drawSecondRoom(canvas, true);
-				}
+					//force draw
+					this.currentFrames = 0;
 
-				//If neither moving out or into a room, stop updating and drawing
-				else {
-					Log.e("MovementDrawer", "Drawing set to false");
-					if (MovementDrawer.minimapClicked)
-						this.drawMinimap(canvas);
-					//If the exit minimap button has been clicked, draw
-					if (MovementDrawer.exitMinimap){
-						
-						//force draw
-						this.currentFrames = 0;
-						
-						try{
-							this.drawSecondRoom(canvas, false);
-						} catch(NullPointerException e){
-							this.drawFirstRoom(canvas, false);
-						}
-						MovementDrawer.exitMinimap = false;
+					try{
+						this.drawSecondRoom(canvas, false);
+					} catch(NullPointerException e){
+						this.drawFirstRoom(canvas, false);
 					}
-					this.drawMinimapSmall(canvas, MovementDrawer.minimapClicked);
-					MovementDrawer.running = false;
+					MovementDrawer.exitMinimap = false;
 				}
+				this.drawMinimapSmall(canvas, MovementDrawer.minimapClicked);
+				MovementDrawer.running = false;
 			}
 		}
-
 	}
 
-
-	public void drawIntroMessage(Canvas canvas){
-
-		float size = this.size;
-		double finalWidth = 0.8*size;
-
-		if (!this.startIntroMessageTicking){
-			double increment = this.SPEED;
-			this.wIntroMessage += increment;
-			this.hIntroMessage += 0.125*increment;
-		}
-		else {
-			this.currentIntroMessageTicks += 1;
-		}
-
-		this.drawFirstRoom(canvas, false);
-		Bitmap introMessage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(
-				getResources(), R.drawable.intro_message_maze), 
-				(int) (this.wIntroMessage), 
-				(int) (this.hIntroMessage), false);
-
-		canvas.drawBitmap(introMessage, (size - this.wIntroMessage)/2,  size/3 - hIntroMessage/2, this.p);
-
-		if (!this.startIntroMessageTicking && this.wIntroMessage >= finalWidth){
-			this.startIntroMessageTicking = true;
-		}
-
-		if (this.currentIntroMessageTicks >= this.INTRO_MESSAGE_DURATION){
-
-			this.drawFirstRoom(canvas, false);
-			this.drawMinimapSmall(canvas, false);
-
-			this.currentIntroMessageTicks = 0;
-			this.startIntroMessageTicking = false;
-			this.drawingIntroMessage = false;
-			MovementDrawer.running = false;
-		}
-	}
 
 	public void drawFirstRoom(Canvas canvas, boolean updateImage){
 
@@ -184,10 +133,10 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 
 		this.drawPlayerInRoom(canvas, updateImage);
 	}
-	
-	
+
+
 	private void drawPlayerInRoom(Canvas canvas, boolean updateImage){
-		
+
 		if (!updateImage){
 			canvas.drawBitmap(this.pImage.getImage(MovementDrawer.direction), this.xPlayer - this.size/8, this.yPlayer - this.size/8, this.p);
 		}
