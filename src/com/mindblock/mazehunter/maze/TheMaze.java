@@ -54,6 +54,7 @@ public class TheMaze extends Activity{
 	protected MovementDrawer md;
 	protected Enemy enemy;
 	private LevelCompletion levelCompletion;
+	protected boolean levelFinished = false;
 
 
 	@Override
@@ -258,6 +259,9 @@ public class TheMaze extends Activity{
 			Bitmap b3 = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.obtained_treasures_3), 
 					(int) this.getDeviceWidth()/3, (int) this.getDeviceWidth()/9, false);
 			this.treasureCount.setImageBitmap(b3);
+			//To ensure maze is finished:
+			this.levelFinished = true;
+			this.md.levelComplete();
 			break;
 		default :
 			Bitmap b0 = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.obtained_treasures_0), 
@@ -267,6 +271,12 @@ public class TheMaze extends Activity{
 		}
 	}
 
+	
+	private void levelComplete(){
+		
+		Intent i = new Intent(TheMaze.this,TheMazeLayout1.class);    
+        startActivity(i);
+	}
 
 	/**
 	 * 
@@ -330,6 +340,11 @@ public class TheMaze extends Activity{
 				return false;
 			}
 			
+			//Check if level is finished, any touch will exit to maze layout.
+			if (levelFinished){
+				levelComplete();
+				return true;
+			}
 
 			float x = event.getX(); //the most recent x coordinate of the touch
 			float y = event.getY(); //the most recent y coordinate of the touch

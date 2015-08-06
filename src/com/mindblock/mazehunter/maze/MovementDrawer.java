@@ -16,7 +16,7 @@ import android.view.SurfaceView;
 public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callback{
 
 	public static Bitmap doorImageRoom1, doorImageRoom2, roomBackground1, roomBackground2, minimapEnter, minimapExit;
-	public Bitmap enemyToken, playerToken;
+	public Bitmap enemyToken, playerToken, completedImage;
 	private Paint p;
 	public static int direction;
 	private float xPlayer, yPlayer;
@@ -26,6 +26,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 	public static boolean minimapClicked = false;
 	public static boolean exitMinimap = false;
 	private boolean initiation = true;
+	private boolean levelCompleted = false;
 	private int currentFrames = 0;
 	private int mazeSize;
 	private Room[][] roomsVisited;
@@ -59,6 +60,8 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 		int sizePerRoom = (int) ((double) (0.7*this.size)/this.mazeSize) - 2;
 		this.enemyToken = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.enemy_token), sizePerRoom, sizePerRoom, false);
 		this.playerToken = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.player_token), sizePerRoom, sizePerRoom, false);
+
+		this.completedImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.level_completed), 2*this.size/3, this.size/3, false);
 
 		this.xPlayer = this.size/2;
 		this.yPlayer = this.size/2;
@@ -124,6 +127,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 		canvas.drawBitmap(MovementDrawer.doorImageRoom1, 0, 0, this.p);
 
 		this.drawPlayerInRoom(canvas, updateImage);
+
 	}
 
 	public void drawSecondRoom(Canvas canvas, boolean updateImage){
@@ -132,6 +136,11 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 		canvas.drawBitmap(MovementDrawer.doorImageRoom2, 0, 0, this.p);
 
 		this.drawPlayerInRoom(canvas, updateImage);
+
+		//Check if level is completed (3 treasures)
+		if (this.levelCompleted){
+			canvas.drawBitmap(this.completedImage, this.size/6, this.size/5, this.p);
+		}
 	}
 
 
@@ -152,6 +161,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 			}
 			this.currentFrames += 1;
 		}
+
 	}
 
 	public void drawMinimapSmall(Canvas canvas, boolean minimapEnabled){
@@ -432,6 +442,11 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 		if (!MovementDrawer.minimapClicked){
 			MovementDrawer.exitMinimap = true;
 		}
+	}
+
+
+	public void levelComplete() {
+		this.levelCompleted = true;
 	}
 
 }
