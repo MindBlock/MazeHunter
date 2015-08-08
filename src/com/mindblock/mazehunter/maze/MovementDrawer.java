@@ -15,53 +15,77 @@ import android.view.SurfaceView;
 
 public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callback{
 
-	public static Bitmap doorImageRoom1, doorImageRoom2, roomBackground1, roomBackground2, minimapEnter, minimapExit;
+	public static Bitmap doorImageRoom1, doorImageRoom2, roomBackground1, roomBackground2, minimapEnter, minimapExit, skipTurn;
 	public Bitmap enemyToken, playerToken, completedImage;
 	private Paint p;
-	public static int direction;
+	public static int direction, previousDirection;
 	private float xPlayer, yPlayer;
 	private MainThread thread;
 	public static boolean running = true;
 	public static boolean moveingOutOfRoom = true;
 	public static boolean minimapClicked = false;
+	public static boolean skipTurnClicked = false;
 	public static boolean exitMinimap = false;
 	private boolean initiation = true;
 	private boolean levelCompleted = false;
+	private static boolean renderingSkip = false;
+	private static boolean exitSkipTurn = false;
 	private int currentFrames = 0;
 	private int mazeSize;
 	private Room[][] roomsVisited;
 	private PlayerImage pImage;
 	private int size;
+	private int startX, startY, endX, endY;
+	private long startTimeEnemy;
 
+	private final int ENEMY_MOVEMENT_TIME = 2000;//ms
 	private final int MOVE_OUT = 0;
 	private final int MOVE_IN = 1;
 	private final int MOVE_DONE = -1;
 	private final int FRAMES_PER_UPDATE = 10;
 
-	private final double SPEED = 3.5*4;
+	private final double SPEED = 3.5*2;
 
-	public MovementDrawer(Context context, int doorOverlayRoom, int direction, int roomDrawable, int mazeSize) {
+	
+	
+	public MovementDrawer(Context context, Bitmap doorOverlayRoom, int direction, int roomDrawable, int mazeSize) {
 		super(context);
 
 		this.mazeSize = mazeSize;
 		this.size = this.getDeviceWidth();
 		MovementDrawer.direction = direction;
+		MovementDrawer.previousDirection = direction;
+		
+		Bitmap b = null;
+		
 		//Scale the image
-		MovementDrawer.roomBackground1 = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), roomDrawable), this.size, this.size, false);
-		MovementDrawer.doorImageRoom1 = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), doorOverlayRoom), this.size, this.size, false);
+		b = BitmapFactory.decodeResource(getResources(), roomDrawable);
+		MovementDrawer.roomBackground1 = Bitmap.createScaledBitmap(b, this.size, this.size, true);
+		MovementDrawer.doorImageRoom1 = doorOverlayRoom;
 
 		//Set room 2 to null
 		MovementDrawer.roomBackground2 = null;
 		MovementDrawer.doorImageRoom2 = null;
 
-		MovementDrawer.minimapEnter = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.minimap), this.size/6, this.size/6, false);
-		MovementDrawer.minimapExit = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.exit_minimap), this.size/6, this.size/6, false);
+		b = BitmapFactory.decodeResource(getResources(), R.drawable.minimap);
+		MovementDrawer.minimapEnter = Bitmap.createScaledBitmap(b, this.size/6, this.size/6, true);
+		
+		b = BitmapFactory.decodeResource(getResources(), R.drawable.exit_minimap);
+		MovementDrawer.minimapExit = Bitmap.createScaledBitmap(b, this.size/6, this.size/6, true);
+		
+		b = BitmapFactory.decodeResource(getResources(), R.drawable.skip_turn);
+		MovementDrawer.skipTurn = Bitmap.createScaledBitmap(b, this.size/6, this.size/6, true);
 
 		int sizePerRoom = (int) ((double) (0.7*this.size)/this.mazeSize) - 2;
-		this.enemyToken = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.enemy_token), sizePerRoom, sizePerRoom, false);
-		this.playerToken = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.player_token), sizePerRoom, sizePerRoom, false);
+		
+		b = BitmapFactory.decodeResource(getResources(), R.drawable.enemy_token);
+		this.enemyToken = Bitmap.createScaledBitmap(b, sizePerRoom, sizePerRoom, true);
+		
+		b = BitmapFactory.decodeResource(getResources(), R.drawable.player_token);
+		this.playerToken = Bitmap.createScaledBitmap(b, sizePerRoom, sizePerRoom, true);
 
-		this.completedImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.level_completed), 2*this.size/3, this.size/3, false);
+		b = BitmapFactory.decodeResource(getResources(), R.drawable.level_completed);
+		this.completedImage = Bitmap.createScaledBitmap(b, 2*this.size/3, this.size/2, true);
 
 		this.xPlayer = this.size/2;
 		this.yPlayer = this.size/2;
@@ -72,35 +96,44 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 		// Tell the SurfaceHolder ( -> getHolder() ) to receive SurfaceHolder
 		// Callback
 		getHolder().addCallback(this);
-		//        getHolder().setFormat(PixelFormat.TRANSPARENT);
 
 		this.thread = new MainThread(getHolder(), this);
 
 		this.p = new Paint();
+		
+		b.recycle();
+		b = null;
 	}
 
 
-	public void drawPlayer(Canvas canvas){
+	public synchronized void drawPlayer(Canvas canvas){
 		if (MovementDrawer.running && canvas != null) {
 
 			if(this.initiation){
 				this.drawFirstRoom(canvas, false);
-				this.initiation = false;
 			}
 
 			int moveResult = this.movePlayer();
 			if (this.MOVE_OUT == moveResult){
 				this.drawFirstRoom(canvas, true);
+				this.initiation = false;
 			}
 			else if (this.MOVE_IN == moveResult){
 				this.drawSecondRoom(canvas, true);
+				this.initiation = false;
 			}
 
 			//If neither moving out or into a room, stop updating and drawing
 			else {
-				Log.e("MovementDrawer", "Drawing set to false");
+				if (!this.initiation){
+					this.drawSecondRoom(canvas, false);
+				}
+				else {
+					this.drawFirstRoom(canvas, false);
+				}
+				//MINIMAP HANDLING
 				if (MovementDrawer.minimapClicked)
-					this.drawMinimap(canvas);
+					this.drawMinimap(canvas, false);
 				//If the exit minimap button has been clicked, draw
 				if (MovementDrawer.exitMinimap){
 
@@ -114,8 +147,34 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 					}
 					MovementDrawer.exitMinimap = false;
 				}
-				this.drawMinimapSmall(canvas, MovementDrawer.minimapClicked);
-				MovementDrawer.running = false;
+
+				//SKIP TURN HANDLING
+				if (MovementDrawer.skipTurnClicked){
+					MovementDrawer.renderingSkip = true;
+					this.startTimeEnemy = System.currentTimeMillis();
+					MovementDrawer.skipTurnClicked = false;
+				}
+				if (MovementDrawer.exitSkipTurn){
+					MovementDrawer.exitSkipTurn = false;
+					
+					//force draw
+					this.currentFrames = 0;
+
+					try{
+						this.drawSecondRoom(canvas, false);
+					} catch(NullPointerException e){
+						this.drawFirstRoom(canvas, false);
+					}
+				}
+				if(MovementDrawer.renderingSkip){
+					this.moveEnemyMinimap(canvas);
+				}
+				else {
+					this.drawMinimapSmall(canvas, MovementDrawer.minimapClicked);
+					this.drawSkipTurn(canvas);
+					MovementDrawer.running = false;
+					Log.e("MovementDrawer", "Drawing set to false");
+				}
 			}
 		}
 	}
@@ -147,7 +206,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 	private void drawPlayerInRoom(Canvas canvas, boolean updateImage){
 
 		if (!updateImage){
-			canvas.drawBitmap(this.pImage.getImage(MovementDrawer.direction), this.xPlayer - this.size/8, this.yPlayer - this.size/8, this.p);
+			canvas.drawBitmap(this.pImage.getImage(MovementDrawer.previousDirection), this.xPlayer - this.size/8, this.yPlayer - this.size/8, this.p);
 		}
 
 		//Only update image once per X frames passed
@@ -164,6 +223,33 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 
 	}
 
+
+	private void moveEnemyMinimap(Canvas canvas){
+
+		int size = (int) (0.7*this.size);
+		int offSet = (int) (0.15*this.size);
+		double sizePerRoom = ((double) size/this.mazeSize);
+		long dT = System.currentTimeMillis() - this.startTimeEnemy;
+
+		if(dT < this.ENEMY_MOVEMENT_TIME){
+
+			
+			this.drawMinimap(canvas, true);
+			canvas.drawBitmap(enemyToken, 
+					offSet + (int) sizePerRoom*startX + (int) (sizePerRoom*(endX-startX)*((double) dT/ENEMY_MOVEMENT_TIME)), 
+					offSet + (int) sizePerRoom*startY + (int) (sizePerRoom*(endY-startY)*((double) dT/ENEMY_MOVEMENT_TIME)), this.p);
+			
+			//Try to sleep for 20ms
+			try {
+				Thread.sleep(20);
+			} catch (InterruptedException e) {}
+		}
+		else {
+			MovementDrawer.exitSkipTurn = true;
+			MovementDrawer.renderingSkip = false;
+		}
+	}
+
 	public void drawMinimapSmall(Canvas canvas, boolean minimapEnabled){
 		if (minimapEnabled)
 			canvas.drawBitmap(MovementDrawer.minimapExit, 5*this.size/6, 5*this.size/6, this.p);
@@ -171,7 +257,11 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 			canvas.drawBitmap(MovementDrawer.minimapEnter, 5*this.size/6, 5*this.size/6, this.p);
 	}
 
-	private void drawMinimap(Canvas canvas){
+	private void drawSkipTurn(Canvas canvas){
+		canvas.drawBitmap(MovementDrawer.skipTurn, 5*this.size/6, 0, this.p);
+	}
+
+	private void drawMinimap(Canvas canvas, boolean enemyMoving){
 		//Fill 70% with minimap
 		int size = (int) (0.7*this.size);
 		int offSet = (int) (0.15*this.size);
@@ -206,7 +296,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 							offSet + h*sizePerRoom, offSet + w*sizePerRoom, this.p);
 				}
 
-				if (room.isEnemy()){
+				if (room.isEnemy() && !enemyMoving){
 					canvas.drawBitmap(this.enemyToken, 
 							offSet + h*sizePerRoom, offSet + w*sizePerRoom, this.p);
 				}
@@ -276,6 +366,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 			}
 			else {
 				//Set player to start position
+				MovementDrawer.direction = TheMaze.NO_DIRECTION;
 				this.yPlayer = size/2;
 				this.xPlayer = size/2;
 				//And return DONE
@@ -284,7 +375,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 		}
 
 		//Right
-		if (MovementDrawer.direction == TheMaze.RIGHT_DIRECTION){
+		else if (MovementDrawer.direction == TheMaze.RIGHT_DIRECTION){
 			if (MovementDrawer.moveingOutOfRoom && this.xPlayer <= size){
 				this.xPlayer += this.SPEED;
 
@@ -303,6 +394,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 			}
 			else {
 				//Set player to start position
+				MovementDrawer.direction = TheMaze.NO_DIRECTION;
 				this.yPlayer = size/2;
 				this.xPlayer = size/2;
 				//And return DONE
@@ -311,7 +403,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 		}
 
 		//Left
-		if (MovementDrawer.direction == TheMaze.LEFT_DIRECTION){
+		else if (MovementDrawer.direction == TheMaze.LEFT_DIRECTION){
 			if (MovementDrawer.moveingOutOfRoom && this.xPlayer >= 0){
 				this.xPlayer -= this.SPEED;
 
@@ -330,6 +422,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 			}
 			else {
 				//Set player to start position
+				MovementDrawer.direction = TheMaze.NO_DIRECTION;
 				this.yPlayer = size/2;
 				this.xPlayer = size/2;
 				//And return DONE
@@ -338,7 +431,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 		}
 
 		//Down
-		if (MovementDrawer.direction == TheMaze.DOWN_DIRECTION){
+		else if (MovementDrawer.direction == TheMaze.DOWN_DIRECTION){
 			if (MovementDrawer.moveingOutOfRoom && this.yPlayer <= size){
 				this.yPlayer += this.SPEED;
 
@@ -357,6 +450,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 			}
 			else {
 				//Set player to start position
+				MovementDrawer.direction = TheMaze.NO_DIRECTION;
 				this.yPlayer = size/2;
 				this.xPlayer = size/2;
 				//And return DONE
@@ -364,7 +458,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 			}
 		}
 
-		//If no direction is chose, don't do anything
+		//If no direction is chosen, don't do anything
 		return this.MOVE_DONE;
 	}
 
@@ -398,9 +492,9 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 		this.shutdownThread();
 	}
 
-	public void updateRoom(int roomDrawable, int direction, int doorOverlayRoom){
-		int width = this.getDeviceWidth();
+	public void updateRoom(int roomDrawable, int direction, Bitmap doorOverlayRoom){
 		MovementDrawer.direction = direction;
+		MovementDrawer.previousDirection = direction;
 		//Check if the old room needs to be set
 		if (MovementDrawer.roomBackground2 != null && MovementDrawer.doorImageRoom2 != null){
 
@@ -409,7 +503,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 		}
 		//Scale the image
 		MovementDrawer.roomBackground2 = TheMaze.getRoomImage(roomDrawable);
-		MovementDrawer.doorImageRoom2 = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), doorOverlayRoom), width, width, false);
+		MovementDrawer.doorImageRoom2 = doorOverlayRoom;
 
 		MovementDrawer.moveingOutOfRoom = true;
 		MovementDrawer.running = true;
@@ -445,8 +539,20 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 	}
 
 
+	public void skipTurnClicked(Room[][] roomsVisited, int startX, int startY, int endX, int endY){
+
+		this.roomsVisited = roomsVisited;
+		this.startX = startX;
+		this.startY = startY;
+		this.endX = endX;
+		this.endY = endY;
+
+		MovementDrawer.skipTurnClicked = true;
+	}
+
+
 	public void levelComplete() {
 		this.levelCompleted = true;
 	}
-
+	
 }

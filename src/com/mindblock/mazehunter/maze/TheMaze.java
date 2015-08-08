@@ -36,6 +36,7 @@ public class TheMaze extends Activity{
 	private int level;
 	private String completion;
 	private int mazeFragment;
+	
 	protected MazeInfo mazeInfo;
 	private List<Coordinate> obtainedTreasureList;
 	protected LinearLayout roomLayout;
@@ -46,7 +47,6 @@ public class TheMaze extends Activity{
 	public static final int UP_DIRECTION = 2;
 	public static final int DOWN_DIRECTION = 3;
 	public static final int NO_DIRECTION = -1;
-	public static final int DELAY = 3000;//3s
 	public static final int START_ROOM = R.drawable.maze_room_start;
 	public static final int TREASURE_ROOM = R.drawable.maze_room_chest;
 	public static final int OTHER_ROOM = R.drawable.maze_room;
@@ -55,6 +55,7 @@ public class TheMaze extends Activity{
 	protected Enemy enemy;
 	private LevelCompletion levelCompletion;
 	protected boolean levelFinished = false;
+	private DoorOverlay doorOverlay;
 
 
 	@Override
@@ -75,9 +76,12 @@ public class TheMaze extends Activity{
 
 		//Init the 3 kinds of rooms
 		int width = (int) this.getDeviceWidth();
-		TheMaze.startRoom = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), TheMaze.START_ROOM), width, width, false);
-		TheMaze.treasureRoom = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), TheMaze.TREASURE_ROOM), width, width, false);
-		TheMaze.otherRoom = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), TheMaze.OTHER_ROOM), width, width, false);
+		TheMaze.startRoom = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), TheMaze.START_ROOM), width, width, true);
+		TheMaze.treasureRoom = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), TheMaze.TREASURE_ROOM), width, width, true);
+		TheMaze.otherRoom = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), TheMaze.OTHER_ROOM), width, width, true);
+		
+		//Init all door overlay images here:
+		this.initDoorImages();
 
 		//get and set all info regarding this maze
 		this.mazeInfo = new MazeInfo(this.getMazeInfo());
@@ -185,10 +189,15 @@ public class TheMaze extends Activity{
 		//set doors
 		Room[][] maze = mazeInfo.getMaze();
 		Coordinate player = this.mazeInfo.getPlayerCoordinate();
-		this.md = new MovementDrawer(this, DoorOverlay.getDoorOverlayDrawable(
+		this.md = new MovementDrawer(this, this.doorOverlay.getDoorOverlayImage(
 				maze[player.getX()][player.getY()].getBitRoom()), NO_DIRECTION, START_ROOM, maze.length);
 		this.roomLayout.addView(this.md);
 
+	}
+	
+	
+	private void initDoorImages(){
+		this.doorOverlay = DoorOverlay.getInstance((int) this.getDeviceWidth(), this);
 	}
 
 	protected void updateRoomLayout(Room newRoom, int direction){
@@ -216,7 +225,7 @@ public class TheMaze extends Activity{
 		Room[][] maze = mazeInfo.getMaze();
 		Coordinate player = this.mazeInfo.getPlayerCoordinate();
 		this.md.updateRoom(roomSort, direction, 
-				DoorOverlay.getDoorOverlayDrawable(maze[player.getX()][player.getY()].getBitRoom()));
+				this.doorOverlay.getDoorOverlayImage(maze[player.getX()][player.getY()].getBitRoom()));
 	}
 	
 
@@ -358,6 +367,22 @@ public class TheMaze extends Activity{
 				//exit method, no movement should be possible in either case
 				return false;
 			}
+			
+			//Check if skip-turn is clicked, top right: 5*size/6, 0
+			if (!MovementDrawer.minimapClicked && x > 5*getDeviceWidth()/6 && y < getDeviceWidth()/6){
+				Log.e("SKIPTURN", "SKIP TURN CLICKED");
+				
+				int startX = mazeInfo.getEnemyCoordinate().getY();
+				int startY = mazeInfo.getEnemyCoordinate().getX();
+				enemy.move();
+				int endX = mazeInfo.getEnemyCoordinate().getY();
+				int endY = mazeInfo.getEnemyCoordinate().getX();
+				
+				MovementDrawer.running = true;
+				md.skipTurnClicked(mazeInfo.getMaze(), startX, startY, endX, endY);
+				//exit method, no movement should be possible
+				return false;
+			}
 
 			if (MovementDrawer.minimapClicked) {
 				return false;
@@ -453,16 +478,18 @@ public class TheMaze extends Activity{
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Are you sure you wish to exit?").setPositiveButton("Yes", dialogClickListener)
             .setNegativeButton("No", dialogClickListener).show();
-        
 	}
+	
 	
 	DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
 	    @Override
 	    public void onClick(DialogInterface dialog, int which) {
 	        switch (which){
 	        case DialogInterface.BUTTON_POSITIVE:
+	        	roomLayout.removeAllViews();
+	        	md = null;
 	        	Intent i = new Intent(TheMaze.this,TheMazeLayout1.class);    
-	            startActivity(i);  
+	            startActivity(i); 
 	            break;
 
 	        case DialogInterface.BUTTON_NEGATIVE:

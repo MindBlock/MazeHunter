@@ -27,38 +27,86 @@ public class PlayerImage {
 
 	private void initLists(Context context, int size){
 
+		Bitmap b = null;
+		
 		//UP
-		this.ListUp.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_up_0), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListUp.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_up_1), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListUp.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_up_2), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListUp.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_up_3), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListUp.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_up_2), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListUp.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_up_1), (int) (size/4.0), (int) (size/4.0), false));
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_up_0);
+		this.ListUp.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_up_1);
+		this.ListUp.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_up_2);
+		this.ListUp.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_up_3);
+		this.ListUp.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_up_2);
+		this.ListUp.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_up_1);
+		this.ListUp.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
 
 		//DOWN
-		this.ListDown.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_down_0), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListDown.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_down_1), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListDown.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_down_2), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListDown.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_down_3), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListDown.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_down_2), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListDown.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_down_1), (int) (size/4.0), (int) (size/4.0), false));
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_down_0);
+		this.ListDown.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_down_1);
+		this.ListDown.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_down_2);
+		this.ListDown.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_down_3);
+		this.ListDown.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_down_2);
+		this.ListDown.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_down_1);
+		this.ListDown.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
 
 		//LEFT
-		this.ListLeft.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_left_0), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListLeft.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_left_1), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListLeft.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_left_2), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListLeft.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_left_3), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListLeft.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_left_2), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListLeft.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_left_1), (int) (size/4.0), (int) (size/4.0), false));
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_left_0);
+		this.ListLeft.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_left_1);
+		this.ListLeft.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_left_2);
+		this.ListLeft.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_left_3);
+		this.ListLeft.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_left_2);
+		this.ListLeft.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_left_1);
+		this.ListLeft.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
 
 		//RIGHT
-		this.ListRight.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_right_0), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListRight.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_right_1), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListRight.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_right_2), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListRight.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_right_3), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListRight.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_right_2), (int) (size/4.0), (int) (size/4.0), false));
-		this.ListRight.add(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_right_1), (int) (size/4.0), (int) (size/4.0), false));
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_right_0);
+		this.ListRight.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_right_1);
+		this.ListRight.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_right_2);
+		this.ListRight.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_right_3);
+		this.ListRight.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_right_2);
+		this.ListRight.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.robotic_mouse_right_1);
+		this.ListRight.add(Bitmap.createScaledBitmap(b, (int) (size/4.0), (int) (size/4.0), true));
 
+		b.recycle();
+		b = null;
 	}
 
 	public Bitmap getNextImage(int direction){

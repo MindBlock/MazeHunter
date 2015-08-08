@@ -1,6 +1,7 @@
 package com.mindblock.mazehunter.maze;
 
 import android.graphics.Canvas;
+import android.graphics.PorterDuff.Mode;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
@@ -24,6 +25,7 @@ public class MainThread extends Thread {
 				try {
 					canvas = surfaceHolder.lockCanvas(null);
 					synchronized (surfaceHolder) {
+						canvas.drawColor(0, Mode.CLEAR);
 						md.drawPlayer(canvas);
 					}
 				} finally {

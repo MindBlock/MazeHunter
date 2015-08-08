@@ -1,29 +1,98 @@
 package com.mindblock.mazehunter.maze;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import com.mindblock.mazehunter.R;
 
 public class DoorOverlay {
 
 	
-	private static int OVERLAY1111 = R.drawable.maze_room_overlay_1111;
-	private static int OVERLAY1110 = R.drawable.maze_room_overlay_1110;
-	private static int OVERLAY1101 = R.drawable.maze_room_overlay_1101;
-	private static int OVERLAY1100 = R.drawable.maze_room_overlay_1100;
-	private static int OVERLAY1011 = R.drawable.maze_room_overlay_1011;
-	private static int OVERLAY1010 = R.drawable.maze_room_overlay_1010;
-	private static int OVERLAY1001 = R.drawable.maze_room_overlay_1001;
-	private static int OVERLAY1000 = R.drawable.maze_room_overlay_1000;
-	private static int OVERLAY0111 = R.drawable.maze_room_overlay_0111;
-	private static int OVERLAY0110 = R.drawable.maze_room_overlay_0110;
-	private static int OVERLAY0101 = R.drawable.maze_room_overlay_0101;
-	private static int OVERLAY0100 = R.drawable.maze_room_overlay_0100;
-	private static int OVERLAY0011 = R.drawable.maze_room_overlay_0011;
-	private static int OVERLAY0001 = R.drawable.maze_room_overlay_0001;
-	private static int OVERLAY0010 = R.drawable.maze_room_overlay_0010;
-	private static int ERROR = -1;
+	private Bitmap OVERLAY1111;
+	private Bitmap OVERLAY1110;
+	private Bitmap OVERLAY1101;
+	private Bitmap OVERLAY1100;
+	private Bitmap OVERLAY1011;
+	private Bitmap OVERLAY1010;
+	private Bitmap OVERLAY1001;
+	private Bitmap OVERLAY1000;
+	private Bitmap OVERLAY0111;
+	private Bitmap OVERLAY0110;
+	private Bitmap OVERLAY0101;
+	private Bitmap OVERLAY0100;
+	private Bitmap OVERLAY0011;
+	private Bitmap OVERLAY0001;
+	private Bitmap OVERLAY0010;
+	
+	private static DoorOverlay doorOverlay;
+	
+	private DoorOverlay(int size, Context context){
+		
+		this.initImages(size, context);
+	}
 	
 	
-	public static int getDoorOverlayDrawable(String doorConfig){
+	private void initImages(int size, Context context){
+		Bitmap b = null;
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.maze_room_overlay_1111);
+		this.OVERLAY1111 = Bitmap.createScaledBitmap(b, size, size, true);
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.maze_room_overlay_1110);
+		this.OVERLAY1110 = Bitmap.createScaledBitmap(b, size, size, true);
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.maze_room_overlay_1101);
+		this.OVERLAY1101 = Bitmap.createScaledBitmap(b, size, size, true);
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.maze_room_overlay_1100);
+		this.OVERLAY1100 = Bitmap.createScaledBitmap(b, size, size, true);
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.maze_room_overlay_1011);
+		this.OVERLAY1011 = Bitmap.createScaledBitmap(b, size, size, true);
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.maze_room_overlay_1010);
+		this.OVERLAY1010 = Bitmap.createScaledBitmap(b, size, size, true);
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.maze_room_overlay_1001);
+		this.OVERLAY1001 = Bitmap.createScaledBitmap(b, size, size, true);
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.maze_room_overlay_1000);
+		this.OVERLAY1000 = Bitmap.createScaledBitmap(b, size, size, true);
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.maze_room_overlay_0111);
+		this.OVERLAY0111 = Bitmap.createScaledBitmap(b, size, size, true);
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.maze_room_overlay_0110);
+		this.OVERLAY0110 = Bitmap.createScaledBitmap(b, size, size, true);
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.maze_room_overlay_0101);
+		this.OVERLAY0101 = Bitmap.createScaledBitmap(b, size, size, true);
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.maze_room_overlay_0100);
+		this.OVERLAY0100 = Bitmap.createScaledBitmap(b, size, size, true);
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.maze_room_overlay_0011);
+		this.OVERLAY0011 = Bitmap.createScaledBitmap(b, size, size, true);
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.maze_room_overlay_0010);
+		this.OVERLAY0010 = Bitmap.createScaledBitmap(b, size, size, true);
+		
+		b = BitmapFactory.decodeResource(context.getResources(), R.drawable.maze_room_overlay_0001);
+		this.OVERLAY0001 = Bitmap.createScaledBitmap(b, size, size, true);
+		
+		b.recycle();
+		b = null;
+	}
+	
+	
+	public static DoorOverlay getInstance(int size, Context context){
+		if (doorOverlay == null)
+			doorOverlay = new DoorOverlay(size, context);
+		return doorOverlay;
+	}
+	
+	public Bitmap getDoorOverlayImage(String doorConfig){
 		
 		int doorCode = Integer.parseInt("1" + doorConfig);
 		switch (doorCode){
@@ -43,7 +112,7 @@ public class DoorOverlay {
 		case 10011: return OVERLAY0011;
 		case 10001: return OVERLAY0001;
 		case 10010: return OVERLAY0010;
-		default: return ERROR;
+		default: return OVERLAY1111;
 		}
 	}
 }
