@@ -9,6 +9,7 @@ import android.util.Log;
 import com.mindblock.mazehunter.maze.Coordinate;
 import com.mindblock.mazehunter.maze.MazeInfo;
 import com.mindblock.mazehunter.maze.Room;
+import com.mindblock.mazehunter.maze.TheMaze;
 
 public class Enemy {
 
@@ -16,6 +17,7 @@ public class Enemy {
 	
 	private MazeInfo mazeInfo;
 	private int strategy;
+	private int direction;
 	
 	
 	public Enemy(MazeInfo mazeInfo, int strategy){
@@ -55,6 +57,20 @@ public class Enemy {
 		Coordinate toMove = movementList.get(moveIndex);
 		this.mazeInfo.moveEnemy(toMove.getX(), toMove.getY());
 		
+		//Check direction
+		if (toMove.getY() == -1)
+			this.direction = TheMaze.LEFT_DIRECTION;
+		else if (toMove.getY() == 1)
+			this.direction = TheMaze.RIGHT_DIRECTION;
+		else if (toMove.getX() == -1)
+			this.direction = TheMaze.UP_DIRECTION;
+		else
+			this.direction = TheMaze.DOWN_DIRECTION;
+		
 		Log.e("ENEMY", "Moving enemy with dX: " + toMove.getY() + " and dY: " + toMove.getX());
+	}
+	
+	public int getLastDirection(){
+		return this.direction;
 	}
 }

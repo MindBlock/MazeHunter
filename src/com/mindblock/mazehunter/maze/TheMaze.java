@@ -55,6 +55,7 @@ public class TheMaze extends Activity{
 	protected Enemy enemy;
 	private LevelCompletion levelCompletion;
 	protected boolean levelFinished = false;
+	protected boolean levelFailed = false;
 	private DoorOverlay doorOverlay;
 
 
@@ -220,7 +221,11 @@ public class TheMaze extends Activity{
 		else {
 			roomSort = OTHER_ROOM;
 		}
-
+		
+		if (this.levelFailed){
+			this.md.gameOverMoving(this.enemy.getLastDirection());
+		}
+		
 		//Next: update the doors overlay and movement:
 		Room[][] maze = mazeInfo.getMaze();
 		Coordinate player = this.mazeInfo.getPlayerCoordinate();
@@ -282,7 +287,8 @@ public class TheMaze extends Activity{
 
 	
 	private void levelComplete(){
-		
+		roomLayout.removeAllViews();
+    	md = null;
 		Intent i = new Intent(TheMaze.this,TheMazeLayout1.class);    
         startActivity(i);
 	}
@@ -344,15 +350,15 @@ public class TheMaze extends Activity{
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
 
+			//Check if level is finished, any touch will exit to maze layout.
+			if (levelFinished || levelFailed){
+				levelComplete();
+				return true;
+			}
+
 			//Do nothing if still drawing
 			if (md.isDrawing() || MovementDrawer.exitMinimap){
 				return false;
-			}
-			
-			//Check if level is finished, any touch will exit to maze layout.
-			if (levelFinished){
-				levelComplete();
-				return true;
 			}
 
 			float x = event.getX(); //the most recent x coordinate of the touch
@@ -421,6 +427,12 @@ public class TheMaze extends Activity{
 
 			mazeInfo.movePlayer(0, 1);
 			enemy.move();
+			
+			//Check if game is over
+			if (this.sameCoordinate(mazeInfo.getEnemyCoordinate(), mazeInfo.getPlayerCoordinate())){
+				Log.e("GAME_OVER", "GAME_OVER");
+				levelFailed = true;
+			}
 
 			updateRoomLayout(maze[player.getX()][player.getY()], RIGHT_DIRECTION);
 		}
@@ -429,6 +441,12 @@ public class TheMaze extends Activity{
 
 			mazeInfo.movePlayer(-1, 0);
 			enemy.move();
+			
+			//Check if game is over
+			if (this.sameCoordinate(mazeInfo.getEnemyCoordinate(), mazeInfo.getPlayerCoordinate())){
+				Log.e("GAME_OVER", "GAME_OVER");
+				levelFailed = true;
+			}
 
 			updateRoomLayout(maze[player.getX()][player.getY()], UP_DIRECTION);
 		}
@@ -437,6 +455,12 @@ public class TheMaze extends Activity{
 
 			mazeInfo.movePlayer(0, -1);
 			enemy.move();
+			
+			//Check if game is over
+			if (this.sameCoordinate(mazeInfo.getEnemyCoordinate(), mazeInfo.getPlayerCoordinate())){
+				Log.e("GAME_OVER", "GAME_OVER");
+				levelFailed = true;
+			}
 
 			updateRoomLayout(maze[player.getX()][player.getY()], LEFT_DIRECTION);
 		}
@@ -445,8 +469,18 @@ public class TheMaze extends Activity{
 
 			mazeInfo.movePlayer(1, 0);
 			enemy.move();
+			
+			//Check if game is over
+			if (this.sameCoordinate(mazeInfo.getEnemyCoordinate(), mazeInfo.getPlayerCoordinate())){
+				Log.e("GAME_OVER", "GAME_OVER");
+				levelFailed = true;
+			}
 
 			updateRoomLayout(maze[player.getX()][player.getY()], DOWN_DIRECTION);
+		}
+		
+		private boolean sameCoordinate(Coordinate a, Coordinate b){
+			return (a.getX() == b.getX() && a.getY() == b.getY());
 		}
 
 	}
@@ -498,4 +532,5 @@ public class TheMaze extends Activity{
 	        }
 	    }
 	};
+	
 }
