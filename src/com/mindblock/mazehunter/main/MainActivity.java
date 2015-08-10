@@ -2,12 +2,14 @@ package com.mindblock.mazehunter.main;
 
 import com.mindblock.mazehunter.R;
 import com.mindblock.mazehunter.maze.TheMazeLayout1;
+import com.mindblock.mazehunter.save.PlayerInformation;
 import com.mindblock.mazehunter.shop.ShopLayout;
 import com.mindblock.mazehunter.skills.SkillsLayout;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -15,8 +17,10 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
@@ -38,10 +42,11 @@ public class MainActivity extends Activity {
 		RelativeLayout rlMain = (RelativeLayout) findViewById(R.id.main_rl_layout);
 		rlMain.setBackgroundResource(R.drawable.background_main);
 
-		rlMain.addView(this.setMainLayouts(rlMain));
+		rlMain.addView(this.setMainLayouts());
+		rlMain.addView(this.setInformationLayout());
 	}
 
-	private LinearLayout setMainLayouts(RelativeLayout rl_main){
+	private LinearLayout setMainLayouts(){
 
 		LinearLayout linearLayout = new LinearLayout(this);
 		linearLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
@@ -53,14 +58,44 @@ public class MainActivity extends Activity {
 		linearLayout.addView(this.getImageButton(SpecificButton.SKILLS));
 		linearLayout.addView(this.getImageButton(SpecificButton.SHOP));
 
-
 		return linearLayout;
 	}
 
 
+	private LinearLayout setInformationLayout(){
+		
+		LinearLayout linearLayout = new LinearLayout(this);
+		linearLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+		linearLayout.setGravity(Gravity.BOTTOM);
+
+		ImageView stars = new ImageView(this);
+		stars.setImageResource(R.drawable.star_counter);
+		stars.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+		stars.setBackgroundColor(Color.TRANSPARENT);
+
+		//Calculate height fitting:
+		stars.setAdjustViewBounds(true);
+		int maxHeight = (int) (0.1*this.getDeviceHeight());
+		stars.setMaxHeight(maxHeight);
+		stars.setMaxWidth((int) (maxHeight*(350/200)));
+		
+		//Textview containing nr of stars
+		TextView tv = new TextView(this);
+		tv.setTypeface(Typeface.createFromAsset(getAssets(),"fonts/bitwise.ttf"));
+		tv.setTextSize((int) ((double) maxHeight/3));
+		int nr_stars = new PlayerInformation(this).getTotalStars();
+		tv.setText(Integer.toString(nr_stars));
+		
+		linearLayout.addView(stars);
+		linearLayout.addView(tv);
+
+		return linearLayout;
+	}
+
 	private LinearLayout getImageButton(SpecificButton sb){
 		ImageButton ib = new ImageButton(this);
-		
+
 		LinearLayout iButtonLayout = new LinearLayout(this);
 		iButtonLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 		iButtonLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -90,7 +125,7 @@ public class MainActivity extends Activity {
 		}
 
 		iButtonLayout.addView(ib);
-		
+
 		return iButtonLayout;
 	}
 
@@ -135,7 +170,7 @@ public class MainActivity extends Activity {
 	private double getDeviceHeight(){
 		return this.getResources().getDisplayMetrics().heightPixels;
 	}
-	
+
 	private double getDeviceWidth(){
 		return this.getResources().getDisplayMetrics().widthPixels;
 	}
@@ -153,7 +188,7 @@ public class MainActivity extends Activity {
 			this.ID = ID;
 		}
 	}
-	
+
 	public void onBackPressed(){
 		Intent intent = new Intent(Intent.ACTION_MAIN);
 		intent.addCategory(Intent.CATEGORY_HOME);

@@ -469,7 +469,8 @@ int drawable robotic_mouse_up_1 0x7f020079
 int drawable robotic_mouse_up_2 0x7f02007a
 int drawable robotic_mouse_up_3 0x7f02007b
 int drawable skip_turn 0x7f02007c
-int drawable the_dude_front_0 0x7f02007d
+int drawable star_counter 0x7f02007d
+int drawable the_dude_front_0 0x7f02007e
 int id action_bar 0x7f090040
 int id action_bar_activity_content 0x7f090003
 int id action_bar_container 0x7f09003f
