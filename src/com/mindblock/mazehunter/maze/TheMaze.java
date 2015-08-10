@@ -28,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.mindblock.mazehunter.R;
+import com.mindblock.mazehunter.maze.clear.ClearMemory;
 import com.mindblock.mazehunter.maze.enemy.Enemy;
 import com.mindblock.mazehunter.save.LevelCompletion;
 
