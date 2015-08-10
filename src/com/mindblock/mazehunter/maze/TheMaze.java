@@ -287,6 +287,9 @@ public class TheMaze extends Activity{
 
 	
 	private void levelComplete(){
+		//Wait until drawing is finished
+		while (this.md != null && this.md.isDrawing());
+		
 		roomLayout.removeAllViews();
     	md = null;
 		Intent i = new Intent(TheMaze.this,TheMazeLayout1.class);    
@@ -386,6 +389,14 @@ public class TheMaze extends Activity{
 				
 				MovementDrawer.running = true;
 				md.skipTurnClicked(mazeInfo.getMaze(), startX, startY, endX, endY);
+				
+				//Check if game is over
+				if (this.sameCoordinate(mazeInfo.getEnemyCoordinate(), mazeInfo.getPlayerCoordinate())){
+					Log.e("GAME_OVER", "GAME_OVER");
+					md.gameOverSkipTurn();
+					levelFailed = true;
+				}
+				
 				//exit method, no movement should be possible
 				return false;
 			}
