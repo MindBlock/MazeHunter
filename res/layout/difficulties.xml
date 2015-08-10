@@ -1,8 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rl_maze_game_layout"
+    android:id="@+id/rl_difficulties_layout"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    tools:context="com.mindblock.mazehunter.info.InfoLayout" >
+    tools:context="com.mindblock.mazehunter.maze.TheMazeDifficulties" >
 
 </RelativeLayout>

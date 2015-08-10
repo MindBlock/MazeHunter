@@ -1,4 +1,4 @@
-package com.mindblock.mazehunter.shop;
+package com.mindblock.mazehunter.info;
 import com.mindblock.mazehunter.R;
 
 import android.app.Activity;
@@ -7,7 +7,7 @@ import android.view.Window;
 import android.widget.RelativeLayout;
 
 
-public class ShopLayout extends Activity{
+public class InfoLayout extends Activity{
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -15,14 +15,14 @@ public class ShopLayout extends Activity{
 
 		//Remove title bar
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.shop_layout);
+		setContentView(R.layout.info_layout);
 
 		this.addShopLayout();
 	}
 	
 	
 	private void addShopLayout(){
-		RelativeLayout rlShopLayout = (RelativeLayout) findViewById(R.id.rl_shop_layout);
-		rlShopLayout.setBackgroundResource(R.drawable.background_main_clean);
+		RelativeLayout rlShopLayout = (RelativeLayout) findViewById(R.id.rl_info_layout);
+		rlShopLayout.setBackgroundResource(R.drawable.background_info);
 	}
 }

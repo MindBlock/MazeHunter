@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.mindblock.mazehunter.maze.TheMazeLayout1;
+import com.mindblock.mazehunter.maze.TheMazeEasy;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -39,9 +39,9 @@ public class LevelCompletion {
 		
 		for (int mazeListIndex = 0; mazeListIndex < this.NUMBER_OF_MAZES; mazeListIndex ++){
 			Map<Integer, String> levelMap = new HashMap<Integer, String>();
-			for (int level = 1; level <= TheMazeLayout1.LEVELS_TOTAL; level ++){
+			for (int level = 1; level <= TheMazeEasy.LEVELS_TOTAL; level ++){
 				String completion = myPrefs.getString(this.MAZE_FRAGMENT_PREFIX + (mazeListIndex+1) + this.MAZE_LEVEL_PREFIX + level, 
-						TheMazeLayout1.COMPLETION_NONE);
+						TheMazeEasy.COMPLETION_NONE);
 				levelMap.put(level, completion);
 			}
 			this.mazeCompletionList.add(levelMap);
@@ -68,11 +68,11 @@ public class LevelCompletion {
 						completion); // add or overwrite someValue
 				
 				//Count stars:
-				if (TheMazeLayout1.COMPLETION_GOLD.equals(completion))
+				if (TheMazeEasy.COMPLETION_GOLD.equals(completion))
 					total_stars += 3;
-				else if (TheMazeLayout1.COMPLETION_SILVER.equals(completion))
+				else if (TheMazeEasy.COMPLETION_SILVER.equals(completion))
 					total_stars += 2;
-				else if (TheMazeLayout1.COMPLETION_BRONZE.equals(completion))
+				else if (TheMazeEasy.COMPLETION_BRONZE.equals(completion))
 					total_stars += 1;
 			}
 		}

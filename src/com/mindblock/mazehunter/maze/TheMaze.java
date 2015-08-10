@@ -242,15 +242,15 @@ public class TheMaze extends Activity{
 		//Check if player bested own score
 		int bestTreasures = 0;
 		
-		if (TheMazeLayout1.COMPLETION_GOLD.equals(this.completion)) bestTreasures = 3;
-		else if (TheMazeLayout1.COMPLETION_SILVER.equals(this.completion)) bestTreasures = 2;
-		else if (TheMazeLayout1.COMPLETION_BRONZE.equals(this.completion)) bestTreasures = 1;
+		if (TheMazeEasy.COMPLETION_GOLD.equals(this.completion)) bestTreasures = 3;
+		else if (TheMazeEasy.COMPLETION_SILVER.equals(this.completion)) bestTreasures = 2;
+		else if (TheMazeEasy.COMPLETION_BRONZE.equals(this.completion)) bestTreasures = 1;
 		
 		if (treasuresObtained > bestTreasures){
-			String newCompletion = TheMazeLayout1.COMPLETION_BRONZE;
+			String newCompletion = TheMazeEasy.COMPLETION_BRONZE;
 			
-			if (treasuresObtained == 2) newCompletion = TheMazeLayout1.COMPLETION_SILVER;
-			else if (treasuresObtained == 3) newCompletion = TheMazeLayout1.COMPLETION_GOLD;
+			if (treasuresObtained == 2) newCompletion = TheMazeEasy.COMPLETION_SILVER;
+			else if (treasuresObtained == 3) newCompletion = TheMazeEasy.COMPLETION_GOLD;
 			
 			//Update completion
 			this.levelCompletion.getMazeCompletionList().get(this.mazeFragment-1).put(this.level, newCompletion);
@@ -294,7 +294,7 @@ public class TheMaze extends Activity{
 		
 		roomLayout.removeAllViews();
     	md = null;
-		Intent i = new Intent(TheMaze.this,TheMazeLayout1.class);    
+		Intent i = new Intent(TheMaze.this,TheMazeEasy.class);    
         startActivity(i);
 	}
 
@@ -555,7 +555,7 @@ public class TheMaze extends Activity{
 	        case DialogInterface.BUTTON_POSITIVE:
 	        	roomLayout.removeAllViews();
 	        	md = null;
-	        	Intent i = new Intent(TheMaze.this,TheMazeLayout1.class);    
+	        	Intent i = new Intent(TheMaze.this,TheMazeEasy.class);    
 	            startActivity(i); 
 	            break;
 

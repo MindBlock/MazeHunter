@@ -21,7 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 
-public class TheMazeLayout1 extends Activity{
+public class TheMazeEasy extends Activity{
 
 	public static final int LEVELS_TOTAL = 100;
 	public static final String COMPLETION_NONE = "NONE";
@@ -93,17 +93,17 @@ public class TheMazeLayout1 extends Activity{
 
 			//Check completion
 			//Gold?
-			if (TheMazeLayout1.COMPLETION_GOLD.equals(completion)){
+			if (TheMazeEasy.COMPLETION_GOLD.equals(completion)){
 				levelButton.setBackgroundResource(R.drawable.border_gold_completion);
 				levelButton.setOnClickListener(new LevelListener(level, COMPLETION_GOLD));
 			}
 			//Silver?
-			else if (TheMazeLayout1.COMPLETION_SILVER.equals(completion)){
+			else if (TheMazeEasy.COMPLETION_SILVER.equals(completion)){
 				levelButton.setBackgroundResource(R.drawable.border_silver_completion);
 				levelButton.setOnClickListener(new LevelListener(level, COMPLETION_SILVER));
 			}
 			//Bronze?
-			else if (TheMazeLayout1.COMPLETION_BRONZE.equals(completion)){
+			else if (TheMazeEasy.COMPLETION_BRONZE.equals(completion)){
 				levelButton.setBackgroundResource(R.drawable.border_bronze_completion);
 				levelButton.setOnClickListener(new LevelListener(level, COMPLETION_BRONZE));
 			}
@@ -131,7 +131,7 @@ public class TheMazeLayout1 extends Activity{
 	private ImageView getLevelImage(){
 		ImageView levelImage = new ImageView(this);
 		levelImage.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-		levelImage.setImageResource(R.drawable.image_the_maze_blank);
+		levelImage.setImageResource(R.drawable.image_the_maze_easy);
 
 		levelImage.setAdjustViewBounds(true);
 		int maxHeight = (int) (0.15*this.getDeviceHeight());
@@ -163,12 +163,12 @@ public class TheMazeLayout1 extends Activity{
 			//Show loading screen until maze is loaded
 			setLoadingScreen();
 
-			Intent intent = new Intent(TheMazeLayout1.this, TheMaze.class);
+			Intent intent = new Intent(TheMazeEasy.this, TheMaze.class);
 			//Add extras?
 			intent.putExtra("COMPLETION", this.completion);
 			intent.putExtra("LEVEL", this.level);
 			intent.putExtra("MAZE_FRAGMENT", 1);
-			TheMazeLayout1.this.startActivity(intent);
+			TheMazeEasy.this.startActivity(intent);
 		}
 
 	}
@@ -202,7 +202,7 @@ public class TheMazeLayout1 extends Activity{
 	}
 
 	public void onBackPressed(){
-		Intent i = new Intent(TheMazeLayout1.this,MainActivity.class);    
+		Intent i = new Intent(TheMazeEasy.this,TheMazeDifficulties.class);    
 		startActivity(i);  
 	}
 }

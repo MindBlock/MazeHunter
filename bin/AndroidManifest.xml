@@ -24,7 +24,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.mindblock.mazehunter.maze.TheMazeLayout1"
+            android:name="com.mindblock.mazehunter.maze.TheMazeDifficulties"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name="com.mindblock.mazehunter.maze.TheMazeEasy"
             android:screenOrientation="portrait" >
         </activity>
         <activity
@@ -32,7 +36,7 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.mindblock.mazehunter.shop.ShopLayout"
+            android:name="com.mindblock.mazehunter.info.InfoLayout"
             android:screenOrientation="portrait" >
         </activity>
         <activity

@@ -3,6 +3,6 @@
     android:id="@+id/rl_skills_layout"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    tools:context="com.mindblock.mazehunter.shop.SkillsLayout" >
+    tools:context="com.mindblock.mazehunter.info.SkillsLayout" >
 
 </RelativeLayout>

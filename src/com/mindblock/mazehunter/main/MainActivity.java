@@ -1,9 +1,9 @@
 package com.mindblock.mazehunter.main;
 
 import com.mindblock.mazehunter.R;
-import com.mindblock.mazehunter.maze.TheMazeLayout1;
+import com.mindblock.mazehunter.info.InfoLayout;
+import com.mindblock.mazehunter.maze.TheMazeDifficulties;
 import com.mindblock.mazehunter.save.PlayerInformation;
-import com.mindblock.mazehunter.shop.ShopLayout;
 import com.mindblock.mazehunter.skills.SkillsLayout;
 
 import android.app.Activity;
@@ -56,7 +56,7 @@ public class MainActivity extends Activity {
 		//Add image buttons
 		linearLayout.addView(this.getImageButton(SpecificButton.MAZE));
 		linearLayout.addView(this.getImageButton(SpecificButton.SKILLS));
-		linearLayout.addView(this.getImageButton(SpecificButton.SHOP));
+		linearLayout.addView(this.getImageButton(SpecificButton.INFO));
 
 		return linearLayout;
 	}
@@ -119,8 +119,8 @@ public class MainActivity extends Activity {
 		case SKILLS: 
 			this.setButtonListenerSkills(ib);
 			break;
-		case SHOP: 
-			this.setButtonListenerShop(ib);
+		case INFO: 
+			this.setButtonListenerInfo(ib);
 			break;
 		}
 
@@ -135,7 +135,7 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(MainActivity.this, TheMazeLayout1.class);
+				Intent intent = new Intent(MainActivity.this, TheMazeDifficulties.class);
 				//Add extras?
 				MainActivity.this.startActivity(intent);
 			}
@@ -154,12 +154,12 @@ public class MainActivity extends Activity {
 		});
 	}
 
-	private void setButtonListenerShop(ImageButton ib){
+	private void setButtonListenerInfo(ImageButton ib){
 		ib.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(MainActivity.this, ShopLayout.class);
+				Intent intent = new Intent(MainActivity.this, InfoLayout.class);
 				//Add extras?
 				MainActivity.this.startActivity(intent);
 			}
@@ -180,7 +180,7 @@ public class MainActivity extends Activity {
 	public enum SpecificButton {
 		MAZE(R.drawable.button_the_maze),
 		SKILLS(R.drawable.button_skills),
-		SHOP(R.drawable.button_shop);
+		INFO(R.drawable.button_info);
 
 		private int ID;
 

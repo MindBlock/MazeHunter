@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.mindblock.mazehunter.maze.TheMazeLayout1;
+import com.mindblock.mazehunter.maze.TheMazeEasy;
 import com.mindblock.mazehunter.save.LevelCompletion;
 
 import android.content.Context;
@@ -23,7 +23,7 @@ public class ClearMemory {
 		for (int i = 0; i < completionList.size(); i++){
 			Map<Integer, String> newMap = new HashMap<Integer, String>();
 			for (Iterator<Integer> it = completionList.get(i).keySet().iterator();it.hasNext();){
-				newMap.put(it.next(), TheMazeLayout1.COMPLETION_NONE);
+				newMap.put(it.next(), TheMazeEasy.COMPLETION_NONE);
 			}
 			clearList.add(newMap);
 		}
