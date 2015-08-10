@@ -32,6 +32,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 	private boolean initiation = true;
 	private boolean levelCompleted = false;
 	private boolean gameOverSkipTurn = false;
+	private boolean gameOverMovingToEnemy = false;
 	private static boolean renderingSkip = false;
 	private static boolean exitSkipTurn = false;
 	private int currentFrames = 0;
@@ -221,15 +222,13 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 		}
 		
 		//Check if level is failed
-		else if (this.gameOverMoving){
+		else if (this.gameOverMoving || this.gameOverSkipTurn){
 			canvas.drawBitmap(this.failedImage, this.size/6, this.size/5, this.p);
 		}
 		
-		else if (this.gameOverSkipTurn){
+		else if (this.gameOverMovingToEnemy){
 			canvas.drawBitmap(this.eImage.getDirection(TheMaze.DOWN_DIRECTION), this.size/2 - this.size/8, this.size/2 - this.size/8, this.p);
-			canvas.drawBitmap(this.failedImage, this.size/6, this.size/5, this.p);
 		}
-		
 	}
 
 
@@ -238,6 +237,9 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 		if (!updateImage){
 			if (drawEnemy){
 				canvas.drawBitmap(this.eImage.getDirection(TheMaze.DOWN_DIRECTION), this.xEnemy - this.size/8, this.yEnemy - this.size/8, this.p);
+			}
+			else if(this.gameOverMovingToEnemy || this.gameOverSkipTurn){
+				canvas.drawBitmap(this.eImage.getDirection(TheMaze.DOWN_DIRECTION), this.size/2 - this.size/8, this.size/2 - this.size/8, this.p);
 			}
 			else {
 				canvas.drawBitmap(this.pImage.getImage(MovementDrawer.previousDirection), this.xPlayer - this.size/8, this.yPlayer - this.size/8, this.p);
@@ -646,6 +648,10 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 	
 	public void gameOverSkipTurn(){
 		this.gameOverSkipTurn = true;
+	}
+	
+	public void gameOverMovingToEnemy(){
+		this.gameOverMovingToEnemy = true;
 	}
 
 }

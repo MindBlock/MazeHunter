@@ -56,6 +56,7 @@ public class TheMaze extends Activity{
 	private LevelCompletion levelCompletion;
 	protected boolean levelFinished = false;
 	protected boolean levelFailed = false;
+	protected boolean levelFailedMovingToEnemy = false;
 	private DoorOverlay doorOverlay;
 
 
@@ -354,7 +355,7 @@ public class TheMaze extends Activity{
 		public boolean onTouch(View v, MotionEvent event) {
 
 			//Check if level is finished, any touch will exit to maze layout.
-			if (levelFinished || levelFailed){
+			if (levelFinished || levelFailed || levelFailedMovingToEnemy){
 				levelComplete();
 				return true;
 			}
@@ -437,6 +438,11 @@ public class TheMaze extends Activity{
 		private void goRight(Coordinate player, Room[][] maze, Room room){
 
 			mazeInfo.movePlayer(0, 1);
+			//Check if moved into enemy room
+			if (this.sameCoordinate(mazeInfo.getPlayerCoordinate(), mazeInfo.getEnemyCoordinate())){
+				md.gameOverMovingToEnemy();
+				levelFailedMovingToEnemy = true;
+			}
 			enemy.move();
 			
 			//Check if game is over
@@ -451,6 +457,11 @@ public class TheMaze extends Activity{
 		private void goUp(Coordinate player, Room[][] maze, Room room){
 
 			mazeInfo.movePlayer(-1, 0);
+			//Check if moved into enemy room
+			if (this.sameCoordinate(mazeInfo.getPlayerCoordinate(), mazeInfo.getEnemyCoordinate())){
+				md.gameOverMovingToEnemy();
+				levelFailedMovingToEnemy = true;
+			}
 			enemy.move();
 			
 			//Check if game is over
@@ -465,6 +476,11 @@ public class TheMaze extends Activity{
 		private void goLeft(Coordinate player, Room[][] maze, Room room){
 
 			mazeInfo.movePlayer(0, -1);
+			//Check if moved into enemy room
+			if (this.sameCoordinate(mazeInfo.getPlayerCoordinate(), mazeInfo.getEnemyCoordinate())){
+				md.gameOverMovingToEnemy();
+				levelFailedMovingToEnemy = true;
+			}
 			enemy.move();
 			
 			//Check if game is over
@@ -479,6 +495,11 @@ public class TheMaze extends Activity{
 		private void goDown(Coordinate player, Room[][] maze, Room room){
 
 			mazeInfo.movePlayer(1, 0);
+			//Check if moved into enemy room
+			if (this.sameCoordinate(mazeInfo.getPlayerCoordinate(), mazeInfo.getEnemyCoordinate())){
+				md.gameOverMovingToEnemy();
+				levelFailedMovingToEnemy = true;
+			}
 			enemy.move();
 			
 			//Check if game is over
