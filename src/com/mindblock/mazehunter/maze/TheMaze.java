@@ -28,6 +28,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
 import com.mindblock.mazehunter.R;
 import com.mindblock.mazehunter.maze.enemy.Enemy;
 import com.mindblock.mazehunter.save.LevelCompletion;
@@ -37,7 +40,7 @@ public class TheMaze extends Activity{
 	private int level;
 	private String completion;
 	private int mazeFragment;
-	
+
 	protected MazeInfo mazeInfo;
 	private List<Coordinate> obtainedTreasureList;
 	protected LinearLayout roomLayout;
@@ -60,6 +63,7 @@ public class TheMaze extends Activity{
 	protected boolean levelFailedMovingToEnemy = false;
 	private DoorOverlay doorOverlay;
 
+	private AdView adView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +75,7 @@ public class TheMaze extends Activity{
 			this.level = extras.getInt("LEVEL");
 			this.mazeFragment = extras.getInt("MAZE_FRAGMENT");
 		}
-		
+
 
 		//Remove title bar
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -82,7 +86,7 @@ public class TheMaze extends Activity{
 		TheMaze.startRoom = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), TheMaze.START_ROOM), width, width, true);
 		TheMaze.treasureRoom = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), TheMaze.TREASURE_ROOM), width, width, true);
 		TheMaze.otherRoom = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), TheMaze.OTHER_ROOM), width, width, true);
-		
+
 		//Init all door overlay images here:
 		this.initDoorImages();
 
@@ -93,7 +97,7 @@ public class TheMaze extends Activity{
 		//Initialize level completion map
 		this.levelCompletion = new LevelCompletion();
 		this.levelCompletion.load(this);
-		
+
 		switch (this.mazeFragment){
 		case 1:
 			this.enemy = new Enemy(this.mazeInfo, Enemy.STRATEGY_RANDOM);
@@ -128,10 +132,32 @@ public class TheMaze extends Activity{
 
 		//add information layer
 		ll.addView(this.getInformationLayout(), 2);
+		
+		//add ad-banner
+		ll.addView(this.getAdLayout(), 3);
 
 		rlMazeLayout.addView(ll);
 	}
 
+
+	private LinearLayout getAdLayout(){
+		
+		LinearLayout adLayout = new LinearLayout(this);
+		adLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+		adLayout.setGravity(Gravity.BOTTOM);
+
+		this.adView = new AdView(this);
+		this.adView.setAdSize(AdSize.BANNER);
+		this.adView.setAdUnitId(this.getString(R.string.banner_ad_unit_id));
+		
+		AdRequest adRequest = new AdRequest.Builder().build();
+
+		this.adView.loadAd(adRequest);
+		
+		adLayout.addView(this.adView);
+		
+		return adLayout;
+	}
 
 	private LinearLayout getInformationLayout(){
 
@@ -205,8 +231,8 @@ public class TheMaze extends Activity{
 		this.roomLayout.addView(this.md);
 
 	}
-	
-	
+
+
 	private void initDoorImages(){
 		this.doorOverlay = DoorOverlay.getInstance((int) this.getDeviceWidth(), this);
 	}
@@ -231,42 +257,42 @@ public class TheMaze extends Activity{
 		else {
 			roomSort = OTHER_ROOM;
 		}
-		
+
 		if (this.levelFailed){
 			this.md.gameOverMoving(this.enemy.getLastDirection());
 		}
-		
+
 		//Next: update the doors overlay and movement:
 		Room[][] maze = mazeInfo.getMaze();
 		Coordinate player = this.mazeInfo.getPlayerCoordinate();
 		this.md.updateRoom(roomSort, direction, 
 				this.doorOverlay.getDoorOverlayImage(maze[player.getX()][player.getY()].getBitRoom()));
 	}
-	
+
 
 
 	private void updateTreasureCount(int treasuresObtained){
 
 		//Check if player bested own score
 		int bestTreasures = 0;
-		
+
 		if (TheMazeEasy.COMPLETION_GOLD.equals(this.completion)) bestTreasures = 3;
 		else if (TheMazeEasy.COMPLETION_SILVER.equals(this.completion)) bestTreasures = 2;
 		else if (TheMazeEasy.COMPLETION_BRONZE.equals(this.completion)) bestTreasures = 1;
-		
+
 		if (treasuresObtained > bestTreasures){
 			String newCompletion = TheMazeEasy.COMPLETION_BRONZE;
-			
+
 			if (treasuresObtained == 2) newCompletion = TheMazeEasy.COMPLETION_SILVER;
 			else if (treasuresObtained == 3) newCompletion = TheMazeEasy.COMPLETION_GOLD;
-			
+
 			//Update completion
 			this.levelCompletion.getMazeCompletionList().get(this.mazeFragment-1).put(this.level, newCompletion);
 			//Save it
 			this.levelCompletion.save(this);
 		}
 		//Done checking
-		
+
 		switch(treasuresObtained){
 
 		case 1: 
@@ -295,21 +321,21 @@ public class TheMaze extends Activity{
 		}
 	}
 
-	
+
 	private void levelComplete(){
 		//Wait until drawing is finished
 		while (this.md != null && this.md.isDrawing());
-		
+
 		roomLayout.removeAllViews();
-    	md = null;
-    	Intent i;
-    	if (mazeFragment == 1)
-    		i = new Intent(TheMaze.this,TheMazeEasy.class);
-    	else if (mazeFragment == 2)
-    		i = new Intent(TheMaze.this,TheMazeNormal.class);
-    	else 
-    		i = new Intent(TheMaze.this,TheMazeHard.class);
-        startActivity(i);
+		md = null;
+		Intent i;
+		if (mazeFragment == 1)
+			i = new Intent(TheMaze.this,TheMazeEasy.class);
+		else if (mazeFragment == 2)
+			i = new Intent(TheMaze.this,TheMazeNormal.class);
+		else 
+			i = new Intent(TheMaze.this,TheMazeHard.class);
+		startActivity(i);
 	}
 
 	/**
@@ -369,8 +395,8 @@ public class TheMaze extends Activity{
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
 
-//			showMemoryUsage();
-			
+			//			showMemoryUsage();
+
 			//Check if level is finished, any touch will exit to maze layout.
 			if (levelFinished || levelFailed || levelFailedMovingToEnemy){
 				levelComplete();
@@ -385,7 +411,7 @@ public class TheMaze extends Activity{
 			float x = event.getX(); //the most recent x coordinate of the touch
 			float y = event.getY(); //the most recent y coordinate of the touch
 			double direction = Math.atan2(this.sizeImageOver2 - y, x - this.sizeImageOver2) + Math.PI; //[0 ... 2pi]
-			
+
 			//Check if mini-map is clicked, bottom right: 5*size/6, 5*size/6
 			if (x > 5*getDeviceWidth()/6 && y > 5*getDeviceWidth()/6){
 				Log.e("MINIMAP", "MINIMAP CLICKED");
@@ -394,27 +420,27 @@ public class TheMaze extends Activity{
 				//exit method, no movement should be possible in either case
 				return false;
 			}
-			
+
 			//Check if skip-turn is clicked, top right: 5*size/6, 0
 			if (!MovementDrawer.minimapClicked && x > 5*getDeviceWidth()/6 && y < getDeviceWidth()/6){
 				Log.e("SKIPTURN", "SKIP TURN CLICKED");
-				
+
 				int startX = mazeInfo.getEnemyCoordinate().getY();
 				int startY = mazeInfo.getEnemyCoordinate().getX();
 				enemy.move();
 				int endX = mazeInfo.getEnemyCoordinate().getY();
 				int endY = mazeInfo.getEnemyCoordinate().getX();
-				
+
 				MovementDrawer.running = true;
 				md.skipTurnClicked(mazeInfo.getMaze(), startX, startY, endX, endY);
-				
+
 				//Check if game is over
 				if (this.sameCoordinate(mazeInfo.getEnemyCoordinate(), mazeInfo.getPlayerCoordinate())){
 					Log.e("GAME_OVER", "GAME_OVER");
 					md.gameOverSkipTurn();
 					levelFailed = true;
 				}
-				
+
 				//exit method, no movement should be possible
 				return false;
 			}
@@ -461,7 +487,7 @@ public class TheMaze extends Activity{
 				levelFailedMovingToEnemy = true;
 			}
 			enemy.move();
-			
+
 			//Check if game is over
 			if (this.sameCoordinate(mazeInfo.getEnemyCoordinate(), mazeInfo.getPlayerCoordinate())){
 				Log.e("GAME_OVER", "GAME_OVER");
@@ -480,7 +506,7 @@ public class TheMaze extends Activity{
 				levelFailedMovingToEnemy = true;
 			}
 			enemy.move();
-			
+
 			//Check if game is over
 			if (this.sameCoordinate(mazeInfo.getEnemyCoordinate(), mazeInfo.getPlayerCoordinate())){
 				Log.e("GAME_OVER", "GAME_OVER");
@@ -499,7 +525,7 @@ public class TheMaze extends Activity{
 				levelFailedMovingToEnemy = true;
 			}
 			enemy.move();
-			
+
 			//Check if game is over
 			if (this.sameCoordinate(mazeInfo.getEnemyCoordinate(), mazeInfo.getPlayerCoordinate())){
 				Log.e("GAME_OVER", "GAME_OVER");
@@ -518,7 +544,7 @@ public class TheMaze extends Activity{
 				levelFailedMovingToEnemy = true;
 			}
 			enemy.move();
-			
+
 			//Check if game is over
 			if (this.sameCoordinate(mazeInfo.getEnemyCoordinate(), mazeInfo.getPlayerCoordinate())){
 				Log.e("GAME_OVER", "GAME_OVER");
@@ -527,7 +553,7 @@ public class TheMaze extends Activity{
 
 			updateRoomLayout(maze[player.getX()][player.getY()], DOWN_DIRECTION);
 		}
-		
+
 		private boolean sameCoordinate(Coordinate a, Coordinate b){
 			return (a.getX() == b.getX() && a.getY() == b.getY());
 		}
@@ -554,51 +580,78 @@ public class TheMaze extends Activity{
 		}
 		return TheMaze.otherRoom;
 	}
-	
+
 
 	public void onBackPressed(){
-		
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Are you sure you wish to exit?").setPositiveButton("Yes", dialogClickListener)
-            .setNegativeButton("No", dialogClickListener).show();
-	}
-	
-	
-	DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-	    @Override
-	    public void onClick(DialogInterface dialog, int which) {
-	        switch (which){
-	        case DialogInterface.BUTTON_POSITIVE:
-	        	roomLayout.removeAllViews();
-	        	md = null;
-	        	Intent i;
-	        	if (mazeFragment == 1)
-	        		i = new Intent(TheMaze.this,TheMazeEasy.class);
-	        	else if (mazeFragment == 2)
-	        		i = new Intent(TheMaze.this,TheMazeNormal.class);
-	        	else 
-	        		i = new Intent(TheMaze.this,TheMazeHard.class);
-	            startActivity(i); 
-	            break;
 
-	        case DialogInterface.BUTTON_NEGATIVE:
-	            //No button clicked
-	            break;
-	        }
-	    }
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage("Are you sure you wish to exit?").setPositiveButton("Yes", dialogClickListener)
+		.setNegativeButton("No", dialogClickListener).show();
+	}
+
+
+	DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			switch (which){
+			case DialogInterface.BUTTON_POSITIVE:
+				roomLayout.removeAllViews();
+				md = null;
+				Intent i;
+				if (mazeFragment == 1)
+					i = new Intent(TheMaze.this,TheMazeEasy.class);
+				else if (mazeFragment == 2)
+					i = new Intent(TheMaze.this,TheMazeNormal.class);
+				else 
+					i = new Intent(TheMaze.this,TheMazeHard.class);
+				startActivity(i); 
+				break;
+
+			case DialogInterface.BUTTON_NEGATIVE:
+				//No button clicked
+				break;
+			}
+		}
 	};
-	
-	
+
+
 	protected void showMemoryUsage(){
 		Debug.MemoryInfo memoryInfo = new Debug.MemoryInfo();
-        Debug.getMemoryInfo(memoryInfo);
+		Debug.getMemoryInfo(memoryInfo);
 
-        String memMessage = String.format("App Memory: Pss=%.2f MB, Private=%.2f MB, Shared=%.2f MB",
-                memoryInfo.getTotalPss() / 1024.0,
-                memoryInfo.getTotalPrivateDirty() / 1024.0,
-                memoryInfo.getTotalSharedDirty() / 1024.0);
+		String memMessage = String.format("App Memory: Pss=%.2f MB, Private=%.2f MB, Shared=%.2f MB",
+				memoryInfo.getTotalPss() / 1024.0,
+				memoryInfo.getTotalPrivateDirty() / 1024.0,
+				memoryInfo.getTotalSharedDirty() / 1024.0);
 
-        Log.e("MEMORY", memMessage);
+		Log.e("MEMORY", memMessage);
 	}
-	
+
+
+	@Override
+	public void onPause() {
+		if (adView != null) {
+			adView.pause();
+		}
+		super.onPause();
+	}
+
+	/** Called when returning to the activity */
+	@Override
+	public void onResume() {
+		super.onResume();
+		if (adView != null) {
+			adView.resume();
+		}
+	}
+
+	/** Called before the activity is destroyed */
+	@Override
+	public void onDestroy() {
+		if (adView != null) {
+			adView.destroy();
+		}
+		super.onDestroy();
+	}
+
 }
