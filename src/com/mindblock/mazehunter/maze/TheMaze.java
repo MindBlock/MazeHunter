@@ -102,7 +102,7 @@ public class TheMaze extends Activity{
 			this.enemy = new Enemy(this.mazeInfo, Enemy.STRATEGY_PHEROMONES);
 			break;
 		case 3:
-			this.enemy = new Enemy(this.mazeInfo, Enemy.STRATEGY_PHEROMONES);
+			this.enemy = new Enemy(this.mazeInfo, Enemy.STRATEGY_HARD);
 			break;
 		}
 		this.addMazeLayout();

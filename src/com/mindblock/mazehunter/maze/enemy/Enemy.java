@@ -15,11 +15,12 @@ public class Enemy {
 
 	public static final int STRATEGY_RANDOM = 0;
 	public static final int STRATEGY_PHEROMONES = 1;
+	public static final int STRATEGY_HARD = 2;
 
 	private MazeInfo mazeInfo;
 	private int strategy;
 	private int direction;
-	private final double PHEROMONE_CORRECT = 0.80;
+	private double PHEROMONE_CORRECT = 0.80;
 	private List<Coordinate> playerPath;
 
 
@@ -39,7 +40,10 @@ public class Enemy {
 			this.randomMove();
 			break;
 		case Enemy.STRATEGY_PHEROMONES: 
-			this.pheromoneMove();
+			this.pheromoneMove(false);
+			break;
+		case Enemy.STRATEGY_HARD:
+			this.pheromoneMove(true);
 			break;
 		}
 	}
@@ -79,7 +83,10 @@ public class Enemy {
 	}
 
 
-	private void pheromoneMove(){
+	private void pheromoneMove(boolean hard){
+		
+		if (hard)
+			this.PHEROMONE_CORRECT = 1;
 		
 		//Check if player isn't standing still, otherwise track movement
 		Coordinate player = new Coordinate(this.mazeInfo.getPlayerCoordinate().getX(), this.mazeInfo.getPlayerCoordinate().getY());

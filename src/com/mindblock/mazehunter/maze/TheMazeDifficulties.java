@@ -112,7 +112,7 @@ public class TheMazeDifficulties extends Activity{
 		case HARD: 
 			if (totalStars >= 10){
 				ib.setImageResource(sb.ID);
-				//TODO: this.setButtonListenerHard(ib);
+				this.setButtonListenerHard(ib);
 			}
 			else
 				ib.setImageResource(sb.lockedID);
@@ -157,6 +157,18 @@ public class TheMazeDifficulties extends Activity{
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(TheMazeDifficulties.this, TheMazeNormal.class);
+				//Add extras?
+				TheMazeDifficulties.this.startActivity(intent);
+			}
+		});
+	}
+	
+	private void setButtonListenerHard(ImageButton ib){
+		ib.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(TheMazeDifficulties.this, TheMazeHard.class);
 				//Add extras?
 				TheMazeDifficulties.this.startActivity(intent);
 			}
