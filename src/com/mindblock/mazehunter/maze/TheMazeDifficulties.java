@@ -76,7 +76,7 @@ public class TheMazeDifficulties extends Activity{
 		//Textview containing nr of stars
 		TextView tv = new TextView(this);
 		tv.setTypeface(Typeface.createFromAsset(getAssets(),"fonts/bitwise.ttf"));
-		tv.setTextSize((int) ((double) maxHeight/3));
+		tv.setTextSize((int) ((double) 0.05*this.getDeviceWidth()));
 		int nr_stars = new PlayerInformation(this).getTotalStars();
 		tv.setText(Integer.toString(nr_stars));
 

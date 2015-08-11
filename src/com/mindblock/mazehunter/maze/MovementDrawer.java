@@ -1,6 +1,7 @@
 package com.mindblock.mazehunter.maze;
 
 import com.mindblock.mazehunter.R;
+import com.mindblock.mazehunter.save.PlayerInformation;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -50,13 +51,14 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 	private final int MOVE_DONE = -1;
 	private final int FRAMES_PER_UPDATE = 10;
 
-	private final double SPEED = 3.5*2;
+	private double SPEED;
 
 
 
 	public MovementDrawer(Context context, Bitmap doorOverlayRoom, int direction, int roomDrawable, int mazeSize) {
 		super(context);
 
+		this.SPEED = 3*(new PlayerInformation(context).getSpeedMultiplier()+1);
 		this.mazeSize = mazeSize;
 		this.size = this.getDeviceWidth();
 		MovementDrawer.direction = direction;

@@ -15,6 +15,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Debug;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -28,7 +29,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.mindblock.mazehunter.R;
-import com.mindblock.mazehunter.maze.clear.ClearMemory;
 import com.mindblock.mazehunter.maze.enemy.Enemy;
 import com.mindblock.mazehunter.save.LevelCompletion;
 
@@ -368,6 +368,8 @@ public class TheMaze extends Activity{
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
 
+//			showMemoryUsage();
+			
 			//Check if level is finished, any touch will exit to maze layout.
 			if (levelFinished || levelFailed || levelFailedMovingToEnemy){
 				levelComplete();
@@ -586,5 +588,18 @@ public class TheMaze extends Activity{
 	        }
 	    }
 	};
+	
+	
+	protected void showMemoryUsage(){
+		Debug.MemoryInfo memoryInfo = new Debug.MemoryInfo();
+        Debug.getMemoryInfo(memoryInfo);
+
+        String memMessage = String.format("App Memory: Pss=%.2f MB, Private=%.2f MB, Shared=%.2f MB",
+                memoryInfo.getTotalPss() / 1024.0,
+                memoryInfo.getTotalPrivateDirty() / 1024.0,
+                memoryInfo.getTotalSharedDirty() / 1024.0);
+
+        Log.e("MEMORY", memMessage);
+	}
 	
 }

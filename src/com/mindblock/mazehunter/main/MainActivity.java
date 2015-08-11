@@ -4,6 +4,7 @@ import com.mindblock.mazehunter.R;
 import com.mindblock.mazehunter.info.InfoLayout;
 import com.mindblock.mazehunter.maze.TheMazeDifficulties;
 import com.mindblock.mazehunter.save.PlayerInformation;
+import com.mindblock.mazehunter.settings.SettingsLayout;
 import com.mindblock.mazehunter.skills.SkillsLayout;
 
 import android.app.Activity;
@@ -25,7 +26,7 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
 
 
-	private static final int NUMBER_OF_BUTTONS = 3;
+	private static final int NUMBER_OF_BUTTONS = 4;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +57,7 @@ public class MainActivity extends Activity {
 		//Add image buttons
 		linearLayout.addView(this.getImageButton(SpecificButton.MAZE));
 		linearLayout.addView(this.getImageButton(SpecificButton.SKILLS));
+		linearLayout.addView(this.getImageButton(SpecificButton.SETTINGS));
 		linearLayout.addView(this.getImageButton(SpecificButton.INFO));
 
 		return linearLayout;
@@ -83,7 +85,7 @@ public class MainActivity extends Activity {
 		//Textview containing nr of stars
 		TextView tv = new TextView(this);
 		tv.setTypeface(Typeface.createFromAsset(getAssets(),"fonts/bitwise.ttf"));
-		tv.setTextSize((int) ((double) maxHeight/3));
+		tv.setTextSize((int) ((double) 0.05*this.getDeviceWidth()));
 		int nr_stars = new PlayerInformation(this).getTotalStars();
 		tv.setText(Integer.toString(nr_stars));
 		
@@ -121,6 +123,9 @@ public class MainActivity extends Activity {
 			break;
 		case INFO: 
 			this.setButtonListenerInfo(ib);
+			break;
+		case SETTINGS:
+			this.setButtonListenerSettings(ib);
 			break;
 		}
 
@@ -165,6 +170,18 @@ public class MainActivity extends Activity {
 			}
 		});
 	}
+	
+	private void setButtonListenerSettings(ImageButton ib){
+		ib.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(MainActivity.this, SettingsLayout.class);
+				//Add extras?
+				MainActivity.this.startActivity(intent);
+			}
+		});
+	}
 
 
 	private double getDeviceHeight(){
@@ -180,6 +197,7 @@ public class MainActivity extends Activity {
 	public enum SpecificButton {
 		MAZE(R.drawable.button_the_maze),
 		SKILLS(R.drawable.button_skills),
+		SETTINGS(R.drawable.button_settings),
 		INFO(R.drawable.button_info);
 
 		private int ID;
