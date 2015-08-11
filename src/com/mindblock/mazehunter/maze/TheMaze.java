@@ -101,6 +101,9 @@ public class TheMaze extends Activity{
 		case 2:
 			this.enemy = new Enemy(this.mazeInfo, Enemy.STRATEGY_PHEROMONES);
 			break;
+		case 3:
+			this.enemy = new Enemy(this.mazeInfo, Enemy.STRATEGY_PHEROMONES);
+			break;
 		}
 		this.addMazeLayout();
 	}
@@ -304,10 +307,8 @@ public class TheMaze extends Activity{
     		i = new Intent(TheMaze.this,TheMazeEasy.class);
     	else if (mazeFragment == 2)
     		i = new Intent(TheMaze.this,TheMazeNormal.class);
-    	else {
-    		//TODO: CHange to hard
-    		i = new Intent(TheMaze.this,TheMazeNormal.class);
-    	}
+    	else 
+    		i = new Intent(TheMaze.this,TheMazeHard.class);
         startActivity(i);
 	}
 
@@ -575,10 +576,8 @@ public class TheMaze extends Activity{
 	        		i = new Intent(TheMaze.this,TheMazeEasy.class);
 	        	else if (mazeFragment == 2)
 	        		i = new Intent(TheMaze.this,TheMazeNormal.class);
-	        	else {
-	        		//TODO: CHange to hard
-	        		i = new Intent(TheMaze.this,TheMazeNormal.class);
-	        	}
+	        	else 
+	        		i = new Intent(TheMaze.this,TheMazeHard.class);
 	            startActivity(i); 
 	            break;
 

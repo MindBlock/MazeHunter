@@ -1,6 +1,5 @@
 package com.mindblock.mazehunter.settings;
 import com.mindblock.mazehunter.R;
-import com.mindblock.mazehunter.maze.TheMaze;
 import com.mindblock.mazehunter.save.PlayerInformation;
 
 import android.app.ActionBar.LayoutParams;
@@ -8,7 +7,6 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.os.Bundle;
@@ -20,7 +18,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.TextView;
 
 
 public class SettingsLayout extends Activity{
