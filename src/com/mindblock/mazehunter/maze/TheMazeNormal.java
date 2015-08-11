@@ -20,7 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 
-public class TheMazeEasy extends Activity{
+public class TheMazeNormal extends Activity{
 
 	public static final int LEVELS_TOTAL = 100;
 	public static final String COMPLETION_NONE = "NONE";
@@ -80,7 +80,7 @@ public class TheMazeEasy extends Activity{
 
 		this.levelCompletion.load(this);
 
-		Map<Integer, String> completionMap = this.levelCompletion.getMazeCompletionList().get(0);
+		Map<Integer, String> completionMap = this.levelCompletion.getMazeCompletionList().get(1);
 		int totalLevelsUnlocked = this.unlockedLevels(completionMap);
 		
 		for (int level = 1; level <= totalLevelsUnlocked; level++){
@@ -128,7 +128,7 @@ public class TheMazeEasy extends Activity{
 	private ImageView getLevelImage(){
 		ImageView levelImage = new ImageView(this);
 		levelImage.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-		levelImage.setImageResource(R.drawable.image_the_maze_easy);
+		levelImage.setImageResource(R.drawable.image_the_maze_normal);
 
 		levelImage.setAdjustViewBounds(true);
 		int maxHeight = (int) (0.15*this.getDeviceHeight());
@@ -160,12 +160,12 @@ public class TheMazeEasy extends Activity{
 			//Show loading screen until maze is loaded
 			setLoadingScreen();
 
-			Intent intent = new Intent(TheMazeEasy.this, TheMaze.class);
+			Intent intent = new Intent(TheMazeNormal.this, TheMaze.class);
 			//Add extras?
 			intent.putExtra("COMPLETION", this.completion);
 			intent.putExtra("LEVEL", this.level);
-			intent.putExtra("MAZE_FRAGMENT", 1);
-			TheMazeEasy.this.startActivity(intent);
+			intent.putExtra("MAZE_FRAGMENT", 2);
+			TheMazeNormal.this.startActivity(intent);
 		}
 
 	}
@@ -199,7 +199,7 @@ public class TheMazeEasy extends Activity{
 	}
 
 	public void onBackPressed(){
-		Intent i = new Intent(TheMazeEasy.this,TheMazeDifficulties.class);    
+		Intent i = new Intent(TheMazeNormal.this,TheMazeDifficulties.class);    
 		startActivity(i);  
 	}
 }

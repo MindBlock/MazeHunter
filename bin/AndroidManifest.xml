@@ -32,6 +32,10 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
+            android:name="com.mindblock.mazehunter.maze.TheMazeNormal"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
             android:name="com.mindblock.mazehunter.skills.SkillsLayout"
             android:screenOrientation="portrait" >
         </activity>

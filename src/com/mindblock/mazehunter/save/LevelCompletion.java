@@ -14,7 +14,7 @@ import android.util.Log;
 
 public class LevelCompletion {
 
-	private final int NUMBER_OF_MAZES = 1;
+	private final int NUMBER_OF_MAZES = 3;
 	private final String MAZE_FRAGMENT_PREFIX = "MAZE_FRAGMENT_";
 	private final String MAZE_LEVEL_PREFIX = "_LEVEL_";
 	
@@ -37,7 +37,7 @@ public class LevelCompletion {
 		
 		SharedPreferences myPrefs = context.getSharedPreferences("myPrefs", Context.MODE_PRIVATE);
 		
-		for (int mazeListIndex = 0; mazeListIndex < this.NUMBER_OF_MAZES; mazeListIndex ++){
+		for (int mazeListIndex = 0; mazeListIndex < this.NUMBER_OF_MAZES; mazeListIndex++){
 			Map<Integer, String> levelMap = new HashMap<Integer, String>();
 			for (int level = 1; level <= TheMazeEasy.LEVELS_TOTAL; level ++){
 				String completion = myPrefs.getString(this.MAZE_FRAGMENT_PREFIX + (mazeListIndex+1) + this.MAZE_LEVEL_PREFIX + level, 

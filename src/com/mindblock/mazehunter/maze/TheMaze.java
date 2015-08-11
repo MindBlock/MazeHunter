@@ -94,9 +94,14 @@ public class TheMaze extends Activity{
 		this.levelCompletion = new LevelCompletion();
 		this.levelCompletion.load(this);
 		
-		//TODO: Check what difficulty of enemy should be!
-		this.enemy = new Enemy(this.mazeInfo, Enemy.STRATEGY_RANDOM);
-
+		switch (this.mazeFragment){
+		case 1:
+			this.enemy = new Enemy(this.mazeInfo, Enemy.STRATEGY_RANDOM);
+			break;
+		case 2:
+			this.enemy = new Enemy(this.mazeInfo, Enemy.STRATEGY_PHEROMONES);
+			break;
+		}
 		this.addMazeLayout();
 	}
 
@@ -294,7 +299,15 @@ public class TheMaze extends Activity{
 		
 		roomLayout.removeAllViews();
     	md = null;
-		Intent i = new Intent(TheMaze.this,TheMazeEasy.class);    
+    	Intent i;
+    	if (mazeFragment == 1)
+    		i = new Intent(TheMaze.this,TheMazeEasy.class);
+    	else if (mazeFragment == 2)
+    		i = new Intent(TheMaze.this,TheMazeNormal.class);
+    	else {
+    		//TODO: CHange to hard
+    		i = new Intent(TheMaze.this,TheMazeNormal.class);
+    	}
         startActivity(i);
 	}
 
@@ -324,7 +337,7 @@ public class TheMaze extends Activity{
 		List<String[]> mazeInfo = new ArrayList<String[]>();
 
 		try {
-			InputStream mazeText = getAssets().open("mazes/maze" + Integer.toString(this.level) + ".txt");
+			InputStream mazeText = getAssets().open("mazes/maze" + Integer.toString(this.level+(100*(this.mazeFragment-1))) + ".txt");
 			BufferedReader in = new BufferedReader(new InputStreamReader(mazeText));
 
 			String line = null;
@@ -555,7 +568,15 @@ public class TheMaze extends Activity{
 	        case DialogInterface.BUTTON_POSITIVE:
 	        	roomLayout.removeAllViews();
 	        	md = null;
-	        	Intent i = new Intent(TheMaze.this,TheMazeEasy.class);    
+	        	Intent i;
+	        	if (mazeFragment == 1)
+	        		i = new Intent(TheMaze.this,TheMazeEasy.class);
+	        	else if (mazeFragment == 2)
+	        		i = new Intent(TheMaze.this,TheMazeNormal.class);
+	        	else {
+	        		//TODO: CHange to hard
+	        		i = new Intent(TheMaze.this,TheMazeNormal.class);
+	        	}
 	            startActivity(i); 
 	            break;
 
