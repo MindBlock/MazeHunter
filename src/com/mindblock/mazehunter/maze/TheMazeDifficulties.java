@@ -102,7 +102,7 @@ public class TheMazeDifficulties extends Activity{
 			this.setButtonListenerEasy(ib);
 			break;
 		case NORMAL: 
-			if (totalStars >= 10){
+			if (totalStars >= 200){
 				ib.setImageResource(sb.ID);
 				this.setButtonListenerNormal(ib);
 			}
@@ -110,7 +110,7 @@ public class TheMazeDifficulties extends Activity{
 				ib.setImageResource(sb.lockedID);
 			break;
 		case HARD: 
-			if (totalStars >= 10){
+			if (totalStars >= 400){
 				ib.setImageResource(sb.ID);
 				this.setButtonListenerHard(ib);
 			}
