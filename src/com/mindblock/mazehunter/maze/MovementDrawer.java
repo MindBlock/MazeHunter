@@ -227,6 +227,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 		}
 		
 		else if (this.gameOverMovingToEnemy){
+			canvas.drawBitmap(this.failedImage, this.size/6, this.size/5, this.p);
 			canvas.drawBitmap(this.eImage.getDirection(TheMaze.DOWN_DIRECTION), this.size/2 - this.size/8, this.size/2 - this.size/8, this.p);
 		}
 	}
