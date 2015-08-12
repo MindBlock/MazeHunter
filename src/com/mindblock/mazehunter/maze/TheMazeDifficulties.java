@@ -3,6 +3,7 @@ package com.mindblock.mazehunter.maze;
 import com.mindblock.mazehunter.R;
 import com.mindblock.mazehunter.main.MainActivity;
 import com.mindblock.mazehunter.save.PlayerInformation;
+import com.mindblock.mazehunter.text.FitTextSize;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -76,9 +77,9 @@ public class TheMazeDifficulties extends Activity{
 		//Textview containing nr of stars
 		TextView tv = new TextView(this);
 		tv.setTypeface(Typeface.createFromAsset(getAssets(),"fonts/bitwise.ttf"));
-		tv.setTextSize((int) ((double) 0.05*this.getDeviceWidth()));
 		int nr_stars = new PlayerInformation(this).getTotalStars();
 		tv.setText(Integer.toString(nr_stars));
+		FitTextSize.correctHeight(tv, maxHeight);
 
 		linearLayout.addView(stars);
 		linearLayout.addView(tv);

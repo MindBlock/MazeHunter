@@ -3,8 +3,6 @@ package com.mindblock.mazehunter.useables;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.mindblock.mazehunter.save.PlayerInformation;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 
