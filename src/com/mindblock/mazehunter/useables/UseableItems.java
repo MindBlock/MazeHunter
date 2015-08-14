@@ -1,6 +1,7 @@
 package com.mindblock.mazehunter.useables;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import android.content.Context;
@@ -12,7 +13,7 @@ public class UseableItems {
 	public static final String JUMP = "JUMP";
 	public static final String RETURN = "RETURN";
 	public static final String REVEAL = "REVEAL";
-	public static final String INVINCIBLE = "INVINCIBLE";
+	public static final String TREASURE = "TREASURE";
 	public static final String FREEZE = "FREEZE";
 	
 	private Map<String, Boolean> items;
@@ -39,6 +40,14 @@ public class UseableItems {
 		this.saveAll();
 	}
 	
+	public void reset(){
+		
+		for (Iterator<String> it = this.items.keySet().iterator(); it.hasNext();){
+			this.items.put(it.next(), false);
+		}
+		this.saveAll();
+	}
+	
 	private void loadAll(){
 		
 		SharedPreferences myPrefs = this.context.getSharedPreferences("myPrefs", Context.MODE_PRIVATE);
@@ -46,7 +55,7 @@ public class UseableItems {
 		items.put(UseableItems.JUMP, myPrefs.getBoolean(UseableItems.JUMP, false));
 		items.put(UseableItems.RETURN, myPrefs.getBoolean(UseableItems.RETURN, false));
 		items.put(UseableItems.REVEAL, myPrefs.getBoolean(UseableItems.REVEAL, false));
-		items.put(UseableItems.INVINCIBLE, myPrefs.getBoolean(UseableItems.INVINCIBLE, false));
+		items.put(UseableItems.TREASURE, myPrefs.getBoolean(UseableItems.TREASURE, false));
 		items.put(UseableItems.FREEZE, myPrefs.getBoolean(UseableItems.FREEZE, false));
 	}
 	
@@ -59,7 +68,7 @@ public class UseableItems {
 		e.putBoolean(UseableItems.JUMP, this.items.get(UseableItems.JUMP));
 		e.putBoolean(UseableItems.RETURN, this.items.get(UseableItems.RETURN));
 		e.putBoolean(UseableItems.REVEAL, this.items.get(UseableItems.REVEAL));
-		e.putBoolean(UseableItems.INVINCIBLE, this.items.get(UseableItems.INVINCIBLE));
+		e.putBoolean(UseableItems.TREASURE, this.items.get(UseableItems.TREASURE));
 		e.putBoolean(UseableItems.FREEZE, this.items.get(UseableItems.FREEZE));
 		
 		e.commit();
