@@ -7,7 +7,7 @@ import java.util.List;
 public class MazeInfo {
 
 	private Room[][] maze;
-	private Coordinate player, enemy;
+	private Coordinate player, enemy, start;
 	private List<Coordinate> treasureList;
 	
 	public MazeInfo(List<String[]> mazeList){
@@ -22,8 +22,10 @@ public class MazeInfo {
 				this.maze[row][col] = room;
 				
 				//Checks
-				if (room.isStart())
+				if (room.isStart()){
 					this.player = new Coordinate(row, col);
+					this.start = new Coordinate(row, col);
+				}
 				else if (room.isEnemy())
 					this.enemy = new Coordinate(row, col);
 				else if (room.isTreasure()){
@@ -69,6 +71,13 @@ public class MazeInfo {
 		
 		//And entered this one:
 		this.maze[this.enemy.getX()][this.enemy.getY()].setEnemyHere(true);
+	}
+	
+	public void moveToStart(){
+		this.maze[this.player.getX()][this.player.getY()].setPlayerHere(false);
+		this.player.setX(this.start.getX());
+		this.player.setY(this.start.getY());
+		this.maze[this.player.getX()][this.player.getY()].setPlayerHere(true);
 	}
 	
 	public List<Coordinate> getTreasureList(){

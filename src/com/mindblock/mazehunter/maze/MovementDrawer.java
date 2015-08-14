@@ -34,6 +34,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 	private boolean levelCompleted = false;
 	private boolean gameOverSkipTurn = false;
 	private boolean gameOverMovingToEnemy = false;
+	private boolean returnStart = false;
 	private static boolean renderingSkip = false;
 	private static boolean exitSkipTurn = false;
 	private int currentFrames = 0;
@@ -123,6 +124,17 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 
 			if(this.initiation){
 				this.drawFirstRoom(canvas, false);
+			}
+			
+			if (this.returnStart){
+				this.returnStart = false;
+				this.xPlayer = this.size/2;
+				this.yPlayer = this.size/2;
+				this.drawSecondRoom(canvas, false, false);
+				this.drawMinimapSmall(canvas, false);
+				this.drawSkipTurn(canvas);
+				MovementDrawer.running = false;
+				return;
 			}
 
 			//Enemy movement when game is over, draw only second room
@@ -655,6 +667,22 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 	
 	public void gameOverMovingToEnemy(){
 		this.gameOverMovingToEnemy = true;
+	}
+	
+	public void returnStart(int roomDrawable, Bitmap doorOverlayRoom){
+		this.returnStart = true;
+		
+		//Check if the old room needs to be set
+		if (MovementDrawer.roomBackground2 != null && MovementDrawer.doorImageRoom2 != null){
+
+			MovementDrawer.doorImageRoom1 = MovementDrawer.doorImageRoom2;
+			MovementDrawer.roomBackground1 = MovementDrawer.roomBackground2;
+		}
+		//Scale the image
+		MovementDrawer.roomBackground2 = TheMaze.getRoomImage(roomDrawable);
+		MovementDrawer.doorImageRoom2 = doorOverlayRoom;
+
+		MovementDrawer.running = true;
 	}
 
 }

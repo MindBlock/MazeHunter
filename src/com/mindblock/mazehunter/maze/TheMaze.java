@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -20,6 +22,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
@@ -58,11 +61,13 @@ public class TheMaze extends Activity{
 	protected MovementDrawer md;
 	protected Enemy enemy;
 	private LevelCompletion levelCompletion;
+	private AvailableItems availableItems;
 	protected boolean levelFinished = false;
 	protected boolean levelFailed = false;
 	protected boolean levelFailedMovingToEnemy = false;
 	private DoorOverlay doorOverlay;
-
+	private LinearLayout mainLayout;
+	
 	private AdView adView;
 
 	@Override
@@ -80,6 +85,9 @@ public class TheMaze extends Activity{
 		//Remove title bar
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.maze_game_layout);
+
+		//Init available items
+		this.availableItems = new AvailableItems(this);
 
 		//Init the 3 kinds of rooms
 		int width = (int) this.getDeviceWidth();
@@ -117,31 +125,31 @@ public class TheMaze extends Activity{
 		RelativeLayout rlMazeLayout = (RelativeLayout) findViewById(R.id.rl_maze_game_layout);
 		rlMazeLayout.setBackgroundResource(R.drawable.background_maze_game);
 
-		LinearLayout ll = new LinearLayout(this);
+		this.mainLayout = new LinearLayout(this);
 
 		//Layout stuff
-		ll.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-		ll.setOrientation(LinearLayout.VERTICAL);
-		ll.setGravity(Gravity.CENTER_HORIZONTAL);
+		this.mainLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		this.mainLayout.setOrientation(LinearLayout.VERTICAL);
+		this.mainLayout.setGravity(Gravity.CENTER_HORIZONTAL);
 
 		//Add usable item bar
-		ll.addView(this.getUseableItemsLayout(), 0);
+		this.mainLayout.addView(this.getUseableItemsLayout(), 0);
 		//Add background image view
 		this.initStartRoomLayout();
-		ll.addView(this.roomLayout, 1);
+		this.mainLayout.addView(this.roomLayout, 1);
 
 		//add information layer
-		ll.addView(this.getInformationLayout(), 2);
-		
-		//add ad-banner
-		ll.addView(this.getAdLayout(), 3);
+		this.mainLayout.addView(this.getInformationLayout(), 2);
 
-		rlMazeLayout.addView(ll);
+		//add ad-banner
+		this.mainLayout.addView(this.getAdLayout(), 3);
+
+		rlMazeLayout.addView(this.mainLayout);
 	}
 
 
 	private LinearLayout getAdLayout(){
-		
+
 		LinearLayout adLayout = new LinearLayout(this);
 		adLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 		adLayout.setGravity(Gravity.BOTTOM);
@@ -149,13 +157,13 @@ public class TheMaze extends Activity{
 		this.adView = new AdView(this);
 		this.adView.setAdSize(AdSize.BANNER);
 		this.adView.setAdUnitId(this.getString(R.string.banner_ad_unit_id));
-		
+
 		AdRequest adRequest = new AdRequest.Builder().build();
 
 		this.adView.loadAd(adRequest);
-		
+
 		adLayout.addView(this.adView);
-		
+
 		return adLayout;
 	}
 
@@ -183,7 +191,7 @@ public class TheMaze extends Activity{
 		useableItemsLayout.setOrientation(LinearLayout.HORIZONTAL);
 		useableItemsLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 
-		for (int i = 0; i < NUMBER_OF_USEABLE_ITEMS ; i++){
+		for (Iterator<String> it = this.availableItems.getAllAvailableItems().keySet().iterator(); it.hasNext();){
 
 			LinearLayout iButtonLayout = new LinearLayout(this);
 			iButtonLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
@@ -192,20 +200,46 @@ public class TheMaze extends Activity{
 			ImageButton useableItem = new ImageButton(this);
 
 			//Remove padding
-			useableItem.setPadding(0, 0, 0, 0);
+			useableItem.setPadding(5, 10, 5, 10);
 
 			//Calculate width fitting:
 			useableItem.setAdjustViewBounds(true);
-			int maxWidth = (int) (this.getDeviceWidth()/NUMBER_OF_USEABLE_ITEMS);
+			int maxWidth = (int) ((this.getDeviceWidth()-10.0)/NUMBER_OF_USEABLE_ITEMS);
 			useableItem.setMaxWidth(maxWidth);
 
-			//Here you actually loop through the list of useable items and add the image. 
-			//If list.size() < NUMBER_OF_USEABLE_ITEMS, fill the rest with dummy like here:
-			useableItem.setImageResource(R.drawable.background_useable_item);
+			//Check which image needs to be displayed
+			String key = it.next();
+			UseableSkill useableSkill = this.availableItems.getResources(key);
+			if (this.availableItems.getAllAvailableItems().get(key)){
+				if (this.availableItems.selected(key)){
+					useableItem.setImageResource(useableSkill.getSelectedID());
+				}
+				else {
+					useableItem.setImageResource(useableSkill.getUnlockedID());
+				}
+			}
+			else {
+				useableItem.setImageResource(useableSkill.getLockedID());
+			}
+			
 
 			useableItem.setBackgroundColor(Color.TRANSPARENT);
 
-			//TODO: Add onClick listener
+			
+			switch(useableSkill){
+			case DISTRACT: useableItem.setOnClickListener(new UseableClicked(key));
+				break;
+			case JUMP: useableItem.setOnClickListener(new UseableClicked(key));
+				break;
+			case RETURN: useableItem.setOnClickListener(new ReturnClicked(key));
+				break;
+			case REVEAL: useableItem.setOnClickListener(new RevealClicked(key));
+				break;
+			case TREASURE: useableItem.setOnClickListener(new TreasureClicked(key));
+				break;
+			case FREEZE:useableItem.setOnClickListener(new UseableClicked(key));
+				break;
+			}
 
 			iButtonLayout.addView(useableItem);
 
@@ -214,8 +248,117 @@ public class TheMaze extends Activity{
 
 		return useableItemsLayout;
 	}
+	
+	
+	protected void redrawUseableItemLayout(){
+		this.mainLayout.removeViewAt(0);
+		this.mainLayout.addView(this.getUseableItemsLayout(), 0);
+	}
+	
+	public class UseableClicked implements OnClickListener{
 
+		private String name;
+		
+		public UseableClicked(String name) {
+			this.name = name;
+		}
+		
+		@Override
+		public void onClick(View v) {
+			if (availableItems.getAllAvailableItems().get(this.name)){
+				//If already selected, unselect
+				if (availableItems.selected(name)){
+					availableItems.setSelected(name, false);
+				}
+				else {
+					availableItems.setSelected(name, true);
+				}
+				redrawUseableItemLayout();
+			}
+		}
+	}
+	
+	public class ReturnClicked implements OnClickListener{
 
+		private String name;
+		
+		public ReturnClicked(String name) {
+			this.name = name;
+		}
+		
+		@Override
+		public void onClick(View v) {
+			if (availableItems.getAllAvailableItems().get(this.name)){
+				availableItems.useItem(name);
+				mazeInfo.moveToStart();
+				Coordinate player = mazeInfo.getPlayerCoordinate();
+				md.returnStart(TheMaze.START_ROOM, doorOverlay.getDoorOverlayImage(mazeInfo.getMaze()[player.getX()][player.getY()].getBitRoom()));
+				redrawUseableItemLayout();
+			}
+		}
+	}
+	
+	public class TreasureClicked implements OnClickListener{
+
+		private String name;
+		
+		public TreasureClicked(String name) {
+			this.name = name;
+		}
+		
+		@Override
+		public void onClick(View v) {
+			if (availableItems.getAllAvailableItems().get(this.name)){
+				
+				boolean reveal = false;
+				for (Coordinate t : mazeInfo.getTreasureList()){
+					if (!containsCoordinate(obtainedTreasureList, t)){
+						mazeInfo.getMaze()[t.getX()][t.getY()].setVisited();
+						reveal = true;
+						break;
+					}
+				}
+				if (reveal)
+					availableItems.useItem(name);
+				redrawUseableItemLayout();
+			}
+		}
+		
+	}
+	
+	
+	public class RevealClicked implements OnClickListener{
+
+		private String name;
+		
+		public RevealClicked(String name) {
+			this.name = name;
+		}
+		
+		@Override
+		public void onClick(View v) {
+			//Check if not every room has been visited yet
+			boolean allVisited = true;
+			List<Coordinate> notVisited = new ArrayList<Coordinate>();
+			for (int i = 0; i < mazeInfo.getMaze().length; i++){
+				for (int j = 0; j < mazeInfo.getMaze()[0].length; j++){
+					if (!mazeInfo.getMaze()[i][j].isVisited()){
+						allVisited = false; 
+						notVisited.add(new Coordinate(i, j));
+					}
+				}
+			}
+			
+			if (availableItems.getAllAvailableItems().get(this.name) && !allVisited){
+				availableItems.useItem(name);
+				Coordinate r = notVisited.get(new Random().nextInt(notVisited.size()));
+				mazeInfo.getMaze()[r.getX()][r.getY()].setVisited();
+				redrawUseableItemLayout();
+			}
+		}
+	}
+	
+	
 	private void initStartRoomLayout(){
 		this.roomLayout = new LinearLayout(this);
 		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
@@ -454,22 +597,22 @@ public class TheMaze extends Activity{
 			Room thisRoom = maze[player.getX()][player.getY()];
 
 			//Down
-			if (direction > Math.PI/4 && direction < 3*Math.PI/4 && thisRoom.isDown()){
+			if (direction > Math.PI/4 && direction < 3*Math.PI/4 && (thisRoom.isDown() || availableItems.selected("JUMP"))){
 				this.goDown(player, maze, thisRoom);
 				Log.e("MOVED", "____DOWN____");
 			}
 			//Right
-			else if (direction > 3*Math.PI/4 && direction <= 5*Math.PI/4 && thisRoom.isRight()){
+			else if (direction > 3*Math.PI/4 && direction <= 5*Math.PI/4 && (thisRoom.isRight() || availableItems.selected("JUMP"))){
 				this.goRight(player, maze, thisRoom);
 				Log.e("MOVED", "____RIGHT____");
 			}
 			//Up
-			else if (direction > 5*Math.PI/4 && direction <= 7*Math.PI/4 && thisRoom.isUp()){
+			else if (direction > 5*Math.PI/4 && direction <= 7*Math.PI/4 && (thisRoom.isUp() || availableItems.selected("JUMP"))){
 				this.goUp(player, maze, thisRoom);
 				Log.e("MOVED", "____UP____");
 			}
 			//Left
-			else if ((direction > 7*Math.PI/4 || direction <= Math.PI/4) && thisRoom.isLeft()){
+			else if ((direction > 7*Math.PI/4 || direction <= Math.PI/4) && (thisRoom.isLeft() || availableItems.selected("JUMP"))){
 				this.goLeft(player, maze, thisRoom);
 				Log.e("MOVED", "____LEFT____");
 			}
@@ -480,13 +623,34 @@ public class TheMaze extends Activity{
 
 		private void goRight(Coordinate player, Room[][] maze, Room room){
 
+			//Check if jump used
+			if (!room.isRight() && player.getY() < mazeInfo.getMaze().length -1)
+				availableItems.useItem("JUMP");
+			else 
+				availableItems.setSelected("JUMP", false);
+			redrawUseableItemLayout();
+			if (!(player.getY() < mazeInfo.getMaze().length -1))
+				return;
+
+			if (availableItems.selected("DISTRACT")){
+				room.setDistractPlaced(true, TheMaze.RIGHT_DIRECTION);
+				availableItems.useItem("DISTRACT");
+				redrawUseableItemLayout();
+			}
+			
 			mazeInfo.movePlayer(0, 1);
 			//Check if moved into enemy room
 			if (this.sameCoordinate(mazeInfo.getPlayerCoordinate(), mazeInfo.getEnemyCoordinate())){
 				md.gameOverMovingToEnemy();
 				levelFailedMovingToEnemy = true;
 			}
-			enemy.move();
+			
+			if (availableItems.selected("FREEZE")){
+				availableItems.useItem("FREEZE");
+				redrawUseableItemLayout();
+			}
+			else
+				enemy.move();
 
 			//Check if game is over
 			if (this.sameCoordinate(mazeInfo.getEnemyCoordinate(), mazeInfo.getPlayerCoordinate())){
@@ -499,13 +663,34 @@ public class TheMaze extends Activity{
 
 		private void goUp(Coordinate player, Room[][] maze, Room room){
 
+			//Check if jump used
+			if (!room.isUp() && player.getX() > 0)
+				availableItems.useItem("JUMP");
+			else
+				availableItems.setSelected("JUMP", false);
+			redrawUseableItemLayout();
+			if (!(player.getX() > 0))
+				return;
+
+			if (availableItems.selected("DISTRACT")){
+				room.setDistractPlaced(true, TheMaze.UP_DIRECTION);
+				availableItems.useItem("DISTRACT");
+				redrawUseableItemLayout();
+			}
+			
 			mazeInfo.movePlayer(-1, 0);
 			//Check if moved into enemy room
 			if (this.sameCoordinate(mazeInfo.getPlayerCoordinate(), mazeInfo.getEnemyCoordinate())){
 				md.gameOverMovingToEnemy();
 				levelFailedMovingToEnemy = true;
 			}
-			enemy.move();
+
+			if (availableItems.selected("FREEZE")){
+				availableItems.useItem("FREEZE");
+				redrawUseableItemLayout();
+			}
+			else
+				enemy.move();
 
 			//Check if game is over
 			if (this.sameCoordinate(mazeInfo.getEnemyCoordinate(), mazeInfo.getPlayerCoordinate())){
@@ -518,13 +703,34 @@ public class TheMaze extends Activity{
 
 		private void goLeft(Coordinate player, Room[][] maze, Room room){
 
+			//Check if jump used
+			if (!room.isLeft() && player.getY() > 0)
+				availableItems.useItem("JUMP");
+			else 
+				availableItems.setSelected("JUMP", false);
+			redrawUseableItemLayout();
+			if (!(player.getY() > 0))
+				return;
+			
+			if (availableItems.selected("DISTRACT")){
+				room.setDistractPlaced(true, TheMaze.LEFT_DIRECTION);
+				availableItems.useItem("DISTRACT");
+				redrawUseableItemLayout();
+			}
+			
 			mazeInfo.movePlayer(0, -1);
 			//Check if moved into enemy room
 			if (this.sameCoordinate(mazeInfo.getPlayerCoordinate(), mazeInfo.getEnemyCoordinate())){
 				md.gameOverMovingToEnemy();
 				levelFailedMovingToEnemy = true;
 			}
-			enemy.move();
+
+			if (availableItems.selected("FREEZE")){
+				availableItems.useItem("FREEZE");
+				redrawUseableItemLayout();
+			}
+			else
+				enemy.move();
 
 			//Check if game is over
 			if (this.sameCoordinate(mazeInfo.getEnemyCoordinate(), mazeInfo.getPlayerCoordinate())){
@@ -537,13 +743,35 @@ public class TheMaze extends Activity{
 
 		private void goDown(Coordinate player, Room[][] maze, Room room){
 
+			//Check if jump used
+			if (!room.isDown() && player.getX() < mazeInfo.getMaze().length -1)
+				availableItems.useItem("JUMP");
+			else 
+				availableItems.setSelected("JUMP", false);
+			redrawUseableItemLayout();
+			if (!(player.getX() < mazeInfo.getMaze().length -1))
+				return;
+
+			if (availableItems.selected("DISTRACT")){
+				room.setDistractPlaced(true, TheMaze.DOWN_DIRECTION);
+				availableItems.useItem("DISTRACT");
+				redrawUseableItemLayout();
+			}
+			
+			
 			mazeInfo.movePlayer(1, 0);
 			//Check if moved into enemy room
 			if (this.sameCoordinate(mazeInfo.getPlayerCoordinate(), mazeInfo.getEnemyCoordinate())){
 				md.gameOverMovingToEnemy();
 				levelFailedMovingToEnemy = true;
 			}
-			enemy.move();
+
+			if (availableItems.selected("FREEZE")){
+				availableItems.useItem("FREEZE");
+				redrawUseableItemLayout();
+			}
+			else
+				enemy.move();
 
 			//Check if game is over
 			if (this.sameCoordinate(mazeInfo.getEnemyCoordinate(), mazeInfo.getPlayerCoordinate())){
@@ -585,7 +813,7 @@ public class TheMaze extends Activity{
 	public void onBackPressed(){
 
 		while (this.md.isDrawing());
-		
+
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage("Are you sure you wish to exit?").setPositiveButton("Yes", dialogClickListener)
 		.setNegativeButton("No", dialogClickListener).show();

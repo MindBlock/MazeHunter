@@ -3,8 +3,9 @@ package com.mindblock.mazehunter.maze;
 public class Room {
 
 	
-	private boolean left, right, up, down, start, treasure, enemy, visited, playerHere;
+	private boolean left, right, up, down, start, treasure, enemy, visited, playerHere, distractPlaced;
 	private String bitRoom;
+	private int distractDirection;
 	
 	public Room(String roomInfo){
 		char[] bits = roomInfo.toCharArray();
@@ -74,4 +75,18 @@ public class Room {
 	public void setEnemyHere(boolean enemyHere){
 		this.enemy = enemyHere;
 	}
+
+	public boolean isDistractPlaced() {
+		return distractPlaced;
+	}
+
+	public void setDistractPlaced(boolean distractPlaced, int distractDirection) {
+		this.distractPlaced = distractPlaced;
+		this.distractDirection = distractDirection;
+	}
+
+	public int getDistractDirection() {
+		return distractDirection;
+	}
+
 }

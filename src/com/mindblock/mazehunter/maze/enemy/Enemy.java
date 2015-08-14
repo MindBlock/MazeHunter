@@ -59,10 +59,37 @@ public class Enemy {
 	private void calculateRandomMove(Room room, Coordinate enemy){
 		List<Coordinate> movementList = new ArrayList<Coordinate>();
 
-		if (room.isDown()) movementList.add(new Coordinate(1, 0));
-		if (room.isUp()) movementList.add(new Coordinate(-1, 0));
-		if (room.isLeft()) movementList.add(new Coordinate(0, -1));
-		if (room.isRight()) movementList.add(new Coordinate(0, 1));
+		if (room.isDistractPlaced()){
+			switch (room.getDistractDirection()){
+			case TheMaze.DOWN_DIRECTION:
+				if (room.isUp()) movementList.add(new Coordinate(-1, 0));
+				if (room.isLeft()) movementList.add(new Coordinate(0, -1));
+				if (room.isRight()) movementList.add(new Coordinate(0, 1));
+				break;
+			case TheMaze.UP_DIRECTION:
+				if (room.isDown()) movementList.add(new Coordinate(1, 0));
+				if (room.isLeft()) movementList.add(new Coordinate(0, -1));
+				if (room.isRight()) movementList.add(new Coordinate(0, 1));
+				break;
+			case TheMaze.LEFT_DIRECTION:
+				if (room.isDown()) movementList.add(new Coordinate(1, 0));
+				if (room.isUp()) movementList.add(new Coordinate(-1, 0));
+				if (room.isRight()) movementList.add(new Coordinate(0, 1));
+				break;
+			case TheMaze.RIGHT_DIRECTION:
+				if (room.isDown()) movementList.add(new Coordinate(1, 0));
+				if (room.isUp()) movementList.add(new Coordinate(-1, 0));
+				if (room.isLeft()) movementList.add(new Coordinate(0, -1));
+				break;
+			}
+			room.setDistractPlaced(false, TheMaze.NO_DIRECTION);
+		}
+		else if (!room.isDistractPlaced() || movementList.isEmpty()){
+			if (room.isDown()) movementList.add(new Coordinate(1, 0));
+			if (room.isUp()) movementList.add(new Coordinate(-1, 0));
+			if (room.isLeft()) movementList.add(new Coordinate(0, -1));
+			if (room.isRight()) movementList.add(new Coordinate(0, 1));
+		}
 
 		int moveIndex = new Random().nextInt(movementList.size());
 
@@ -84,10 +111,10 @@ public class Enemy {
 
 
 	private void pheromoneMove(boolean hard){
-		
+
 		if (hard)
 			this.PHEROMONE_CORRECT = 1;
-		
+
 		//Check if player isn't standing still, otherwise track movement
 		Coordinate player = new Coordinate(this.mazeInfo.getPlayerCoordinate().getX(), this.mazeInfo.getPlayerCoordinate().getY());
 		if (!this.playerPath.isEmpty()){
@@ -105,14 +132,14 @@ public class Enemy {
 		//Otherwise:
 		else {
 			int indexInPath = this.getIndexInPlayerPath(enemy);
-			if (indexInPath == -1 || indexInPath+1 > this.playerPath.size()-1 || new Random().nextDouble() > this.PHEROMONE_CORRECT){
+			if (indexInPath == -1 || indexInPath+1 > this.playerPath.size()-1 || new Random().nextDouble() > this.PHEROMONE_CORRECT 
+					|| this.mazeInfo.getMaze()[enemy.getX()][enemy.getY()].isDistractPlaced()){
 				this.randomMove();
 			}
 			else {
 				Coordinate toMove = this.playerPath.get(indexInPath+1);
 				int dX = toMove.getX() - enemy.getX();
 				int dY = toMove.getY() - enemy.getY();
-				this.mazeInfo.moveEnemy(dX, dY);
 				
 				//Check direction
 				if (dY == -1)
@@ -123,6 +150,17 @@ public class Enemy {
 					this.direction = TheMaze.UP_DIRECTION;
 				else
 					this.direction = TheMaze.DOWN_DIRECTION;
+
+				//Check if player hasn't done a jump or return
+				if (Math.abs(dX) > 1 || Math.abs(dY) > 1 
+						|| (!this.mazeInfo.getMaze()[enemy.getX()][enemy.getY()].isUp() && this.direction == TheMaze.UP_DIRECTION)
+						|| (!this.mazeInfo.getMaze()[enemy.getX()][enemy.getY()].isDown() && this.direction == TheMaze.DOWN_DIRECTION)
+						|| (!this.mazeInfo.getMaze()[enemy.getX()][enemy.getY()].isLeft() && this.direction == TheMaze.LEFT_DIRECTION)
+						|| (!this.mazeInfo.getMaze()[enemy.getX()][enemy.getY()].isRight() && this.direction == TheMaze.RIGHT_DIRECTION)){
+					this.randomMove();
+					return;
+				}
+				this.mazeInfo.moveEnemy(dX, dY);
 				
 				Log.e("ENEMY", "Moving enemy with dX: " + dY + " and dY: " + dX);
 			}

@@ -1,7 +1,7 @@
 package com.mindblock.mazehunter.useables;
 
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import android.content.Context;
@@ -20,7 +20,7 @@ public class UseableItems {
 	private Context context;
 	
 	public UseableItems(Context context){
-		items = new HashMap<String, Boolean>();
+		items = new LinkedHashMap<String, Boolean>();
 		this.context = context;
 		
 		this.loadAll();
