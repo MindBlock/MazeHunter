@@ -584,6 +584,8 @@ public class TheMaze extends Activity{
 
 	public void onBackPressed(){
 
+		while (this.md.isDrawing());
+		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage("Are you sure you wish to exit?").setPositiveButton("Yes", dialogClickListener)
 		.setNegativeButton("No", dialogClickListener).show();
