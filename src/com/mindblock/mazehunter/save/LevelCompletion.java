@@ -59,6 +59,7 @@ public class LevelCompletion {
 		SharedPreferences myPrefs = context.getSharedPreferences("myPrefs", Context.MODE_PRIVATE);
 		SharedPreferences.Editor e = myPrefs.edit();
 		int total_stars = 0;
+		int previousTotalStars = new PlayerInformation(context).getTotalStars();
 		
 		for (int mazeListIndex = 0; mazeListIndex < this.mazeCompletionList.size(); mazeListIndex ++){
 			for (Iterator<Integer> levelIt = this.mazeCompletionList.get(mazeListIndex).keySet().iterator(); levelIt.hasNext();){
@@ -78,6 +79,7 @@ public class LevelCompletion {
 		}
 		//Save stars
 		e.putInt(PlayerInformation.NUMBER_OF_STARS, total_stars);
+		e.putInt(PlayerInformation.UNUSED_STARS, new PlayerInformation(context).getUnusedStars() + (total_stars - previousTotalStars));
 		
 		boolean succes = e.commit(); // this saves to disk and notifies observers
 		

@@ -59,7 +59,7 @@ public class MovementDrawer extends SurfaceView implements SurfaceHolder.Callbac
 	public MovementDrawer(Context context, Bitmap doorOverlayRoom, int direction, int roomDrawable, int mazeSize) {
 		super(context);
 
-		this.SPEED = 3*(new PlayerInformation(context).getSpeedMultiplier()+1);
+		this.SPEED = 7.5*(new PlayerInformation(context).getSpeedMultiplier()+1);
 		this.mazeSize = mazeSize;
 		this.size = this.getDeviceWidth();
 		MovementDrawer.direction = direction;
