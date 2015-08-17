@@ -17,7 +17,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Debug;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -31,9 +30,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.doubleclick.PublisherAdRequest;
+import com.google.android.gms.ads.doubleclick.PublisherAdRequest.Builder;
+import com.google.android.gms.ads.doubleclick.PublisherInterstitialAd;
 import com.mindblock.mazehunter.R;
 import com.mindblock.mazehunter.maze.enemy.Enemy;
 import com.mindblock.mazehunter.save.LevelCompletion;
@@ -67,8 +70,9 @@ public class TheMaze extends Activity{
 	protected boolean levelFailedMovingToEnemy = false;
 	private DoorOverlay doorOverlay;
 	private LinearLayout mainLayout;
-	
+
 	private AdView adView;
+	private PublisherInterstitialAd adInterstitial = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +92,26 @@ public class TheMaze extends Activity{
 
 		//Init available items
 		this.availableItems = new AvailableItems(this);
+
+		this.adInterstitial = com.tappx.TAPPXAdInterstitial.Configure(this, this.getString(R.string.tappx_key), new AdListener() {
+			@Override 
+			public void onAdLoaded() {
+				Log.e("AD", "interstitial add is loaded");
+			}
+			
+			@Override
+			public void onAdOpened() {
+				Log.e("AD", "interstitial add is opened");
+			}
+			
+			@Override
+			public void onAdClosed(){
+				Log.e("AD", "interstitial add is closed");
+			}
+		});
+
+		PublisherAdRequest publisherAdRequest = new PublisherAdRequest.Builder().build();
+		this.adInterstitial.loadAd(publisherAdRequest);
 
 		//Init the 3 kinds of rooms
 		int width = (int) this.getDeviceWidth();
@@ -221,24 +245,24 @@ public class TheMaze extends Activity{
 			else {
 				useableItem.setImageResource(useableSkill.getLockedID());
 			}
-			
+
 
 			useableItem.setBackgroundColor(Color.TRANSPARENT);
 
-			
+
 			switch(useableSkill){
 			case DISTRACT: useableItem.setOnClickListener(new UseableClicked(key));
-				break;
+			break;
 			case JUMP: useableItem.setOnClickListener(new UseableClicked(key));
-				break;
+			break;
 			case RETURN: useableItem.setOnClickListener(new ReturnClicked(key));
-				break;
+			break;
 			case REVEAL: useableItem.setOnClickListener(new RevealClicked(key));
-				break;
+			break;
 			case TREASURE: useableItem.setOnClickListener(new TreasureClicked(key));
-				break;
+			break;
 			case FREEZE:useableItem.setOnClickListener(new UseableClicked(key));
-				break;
+			break;
 			}
 
 			iButtonLayout.addView(useableItem);
@@ -248,21 +272,21 @@ public class TheMaze extends Activity{
 
 		return useableItemsLayout;
 	}
-	
-	
+
+
 	protected void redrawUseableItemLayout(){
 		this.mainLayout.removeViewAt(0);
 		this.mainLayout.addView(this.getUseableItemsLayout(), 0);
 	}
-	
+
 	public class UseableClicked implements OnClickListener{
 
 		private String name;
-		
+
 		public UseableClicked(String name) {
 			this.name = name;
 		}
-		
+
 		@Override
 		public void onClick(View v) {
 			if (availableItems.getAllAvailableItems().get(this.name)){
@@ -277,15 +301,15 @@ public class TheMaze extends Activity{
 			}
 		}
 	}
-	
+
 	public class ReturnClicked implements OnClickListener{
 
 		private String name;
-		
+
 		public ReturnClicked(String name) {
 			this.name = name;
 		}
-		
+
 		@Override
 		public void onClick(View v) {
 			if (availableItems.getAllAvailableItems().get(this.name)){
@@ -297,19 +321,19 @@ public class TheMaze extends Activity{
 			}
 		}
 	}
-	
+
 	public class TreasureClicked implements OnClickListener{
 
 		private String name;
-		
+
 		public TreasureClicked(String name) {
 			this.name = name;
 		}
-		
+
 		@Override
 		public void onClick(View v) {
 			if (availableItems.getAllAvailableItems().get(this.name)){
-				
+
 				boolean reveal = false;
 				for (Coordinate t : mazeInfo.getTreasureList()){
 					if (!containsCoordinate(obtainedTreasureList, t)){
@@ -323,18 +347,18 @@ public class TheMaze extends Activity{
 				redrawUseableItemLayout();
 			}
 		}
-		
+
 	}
-	
-	
+
+
 	public class RevealClicked implements OnClickListener{
 
 		private String name;
-		
+
 		public RevealClicked(String name) {
 			this.name = name;
 		}
-		
+
 		@Override
 		public void onClick(View v) {
 			//Check if not every room has been visited yet
@@ -348,7 +372,7 @@ public class TheMaze extends Activity{
 					}
 				}
 			}
-			
+
 			if (availableItems.getAllAvailableItems().get(this.name) && !allVisited){
 				availableItems.useItem(name);
 				Coordinate r = notVisited.get(new Random().nextInt(notVisited.size()));
@@ -357,8 +381,8 @@ public class TheMaze extends Activity{
 			}
 		}
 	}
-	
-	
+
+
 	private void initStartRoomLayout(){
 		this.roomLayout = new LinearLayout(this);
 		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
@@ -466,6 +490,7 @@ public class TheMaze extends Activity{
 
 
 	private void levelComplete(){
+		
 		//Wait until drawing is finished
 		while (this.md != null && this.md.isDrawing());
 
@@ -537,8 +562,6 @@ public class TheMaze extends Activity{
 
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
-
-			//			showMemoryUsage();
 
 			//Check if level is finished, any touch will exit to maze layout.
 			if (levelFinished || levelFailed || levelFailedMovingToEnemy){
@@ -637,14 +660,14 @@ public class TheMaze extends Activity{
 				availableItems.useItem("DISTRACT");
 				redrawUseableItemLayout();
 			}
-			
+
 			mazeInfo.movePlayer(0, 1);
 			//Check if moved into enemy room
 			if (this.sameCoordinate(mazeInfo.getPlayerCoordinate(), mazeInfo.getEnemyCoordinate())){
 				md.gameOverMovingToEnemy();
 				levelFailedMovingToEnemy = true;
 			}
-			
+
 			if (availableItems.selected("FREEZE")){
 				availableItems.useItem("FREEZE");
 				redrawUseableItemLayout();
@@ -656,6 +679,11 @@ public class TheMaze extends Activity{
 			if (this.sameCoordinate(mazeInfo.getEnemyCoordinate(), mazeInfo.getPlayerCoordinate())){
 				Log.e("GAME_OVER", "GAME_OVER");
 				levelFailed = true;
+				
+				//show add
+				if (adInterstitial.isLoaded()){
+					com.tappx.TAPPXAdInterstitial.Show(adInterstitial);
+				}
 			}
 
 			updateRoomLayout(maze[player.getX()][player.getY()], RIGHT_DIRECTION);
@@ -677,7 +705,7 @@ public class TheMaze extends Activity{
 				availableItems.useItem("DISTRACT");
 				redrawUseableItemLayout();
 			}
-			
+
 			mazeInfo.movePlayer(-1, 0);
 			//Check if moved into enemy room
 			if (this.sameCoordinate(mazeInfo.getPlayerCoordinate(), mazeInfo.getEnemyCoordinate())){
@@ -696,6 +724,11 @@ public class TheMaze extends Activity{
 			if (this.sameCoordinate(mazeInfo.getEnemyCoordinate(), mazeInfo.getPlayerCoordinate())){
 				Log.e("GAME_OVER", "GAME_OVER");
 				levelFailed = true;
+				
+				//show add
+				if (adInterstitial.isLoaded()){
+					com.tappx.TAPPXAdInterstitial.Show(adInterstitial);
+				}
 			}
 
 			updateRoomLayout(maze[player.getX()][player.getY()], UP_DIRECTION);
@@ -711,13 +744,13 @@ public class TheMaze extends Activity{
 			redrawUseableItemLayout();
 			if (!(player.getY() > 0))
 				return;
-			
+
 			if (availableItems.selected("DISTRACT")){
 				room.setDistractPlaced(true, TheMaze.LEFT_DIRECTION);
 				availableItems.useItem("DISTRACT");
 				redrawUseableItemLayout();
 			}
-			
+
 			mazeInfo.movePlayer(0, -1);
 			//Check if moved into enemy room
 			if (this.sameCoordinate(mazeInfo.getPlayerCoordinate(), mazeInfo.getEnemyCoordinate())){
@@ -736,6 +769,11 @@ public class TheMaze extends Activity{
 			if (this.sameCoordinate(mazeInfo.getEnemyCoordinate(), mazeInfo.getPlayerCoordinate())){
 				Log.e("GAME_OVER", "GAME_OVER");
 				levelFailed = true;
+				
+				//show add
+				if (adInterstitial.isLoaded()){
+					com.tappx.TAPPXAdInterstitial.Show(adInterstitial);
+				}
 			}
 
 			updateRoomLayout(maze[player.getX()][player.getY()], LEFT_DIRECTION);
@@ -757,8 +795,8 @@ public class TheMaze extends Activity{
 				availableItems.useItem("DISTRACT");
 				redrawUseableItemLayout();
 			}
-			
-			
+
+
 			mazeInfo.movePlayer(1, 0);
 			//Check if moved into enemy room
 			if (this.sameCoordinate(mazeInfo.getPlayerCoordinate(), mazeInfo.getEnemyCoordinate())){
@@ -777,6 +815,11 @@ public class TheMaze extends Activity{
 			if (this.sameCoordinate(mazeInfo.getEnemyCoordinate(), mazeInfo.getPlayerCoordinate())){
 				Log.e("GAME_OVER", "GAME_OVER");
 				levelFailed = true;
+				
+				//show add
+				if (adInterstitial.isLoaded()){
+					com.tappx.TAPPXAdInterstitial.Show(adInterstitial);
+				}
 			}
 
 			updateRoomLayout(maze[player.getX()][player.getY()], DOWN_DIRECTION);
@@ -844,31 +887,23 @@ public class TheMaze extends Activity{
 		}
 	};
 
-
-	protected void showMemoryUsage(){
-		Debug.MemoryInfo memoryInfo = new Debug.MemoryInfo();
-		Debug.getMemoryInfo(memoryInfo);
-
-		String memMessage = String.format("App Memory: Pss=%.2f MB, Private=%.2f MB, Shared=%.2f MB",
-				memoryInfo.getTotalPss() / 1024.0,
-				memoryInfo.getTotalPrivateDirty() / 1024.0,
-				memoryInfo.getTotalSharedDirty() / 1024.0);
-
-		Log.e("MEMORY", memMessage);
-	}
-
-
+	
 	@Override
 	public void onPause() {
 		if (adView != null) {
 			adView.pause();
 		}
+		try {
+			md.surfaceDestroyed(md.getHolder());
+		}catch(Exception e){};
 		super.onPause();
 	}
 
 	/** Called when returning to the activity */
 	@Override
 	public void onResume() {
+		if (md.surfaceCreated())
+			md.restartSurface();
 		super.onResume();
 		if (adView != null) {
 			adView.resume();
